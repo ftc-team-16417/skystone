@@ -7,36 +7,18 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.teamcode.Define;
+public class Lib {
 
-public class Lib extends Define {
+
     public void Lib(){
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
-        imu.initialize(parameters);
-        telemetry.addData("Mode", "calibrating...");
-        telemetry.update();
 
-        while (!isStopRequested() && !imu.isGyroCalibrated()) {
-            sleep(50);
-            idle();
-        }
-
-        telemetry.addData("Mode", "waiting for start");
-        telemetry.addData("imu calib status", imu.getCalibrationStatus().toString());
-        telemetry.update();
-
-        waitForStart();
-
-        telemetry.addData("Mode", "running");
-        telemetry.update();
     }
 
     public int ticks(double distance){
         int tick;
-        tick = (int) Math.ceil(distance/(Math.PI*10.16)*1440);
+        tick = (int) Math.ceil(distance/(Math.PI*10.16)*1440*Math.sqrt(2));
         return tick;
     }
 

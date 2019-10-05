@@ -1,45 +1,47 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
-import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-public class Define extends LinearOpMode {
 
-    DcMotor lf_drive;
-    DcMotor lr_drive;
-    DcMotor rf_drive;
-    DcMotor rr_drive;
-    Servo claw1;
-    Servo claw2;
-    DcMotor arm;
-    DcMotor leftMotor, rightMotor;
-    BNO055IMU imu;
-    Orientation lastAngles = new Orientation();
-    double globalAngle, power = .70, correction;
+public class Define {
+    public static DcMotor lf_drive,lr_drive,rr_drive,rf_drive,arm;
+    public static Servo claw1,claw2,grip;
+    public static BNO055IMU imu;
+    public Define(HardwareMap hw){
+        try {
+            lf_drive = hw.get(DcMotor.class, "lf_drive");
+            lr_drive = hw.get(DcMotor.class, "lr_drive");
+            rf_drive = hw.get(DcMotor.class, "rf_drive");
+            rr_drive = hw.get(DcMotor.class, "rr_drive");
+            claw1 = hw.get(Servo.class, "claw1");
+            claw2 = hw.get(Servo.class, "claw2");
+            arm = hw.get(DcMotor.class, "arm");
+            grip = hw.get(Servo.class, "grip");
 
-    @Override
-    public void runOpMode() throws InterruptedException {
-        lf_drive = hardwareMap.get(DcMotor.class, "lf_drive");
-        lr_drive = hardwareMap.get(DcMotor.class, "lr_drive");
-        rf_drive = hardwareMap.get(DcMotor.class, "rf_drive");
-        rr_drive = hardwareMap.get(DcMotor.class, "rr_drive");
-        claw1 = hardwareMap.get(Servo.class, "claw1");
-        claw2 = hardwareMap.get(Servo.class, "claw2");
-        arm =  hardwareMap.get(DcMotor.class, "arm");
-        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        }
+        catch (Exception e){
 
-        lf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        lr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        }
+    }
+    public void initIMU(Telemetry telemetry){
+        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+        parameters.mode = BNO055IMU.SensorMode.IMU;
+        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+        parameters.loggingEnabled = false;
+        imu.initialize(parameters);
+        telemetry.addData("Mode", "calibrating...");
+        telemetry.update();
 
-        lf_drive.setDirection(DcMotor.Direction.REVERSE);
-        lr_drive.setDirection(DcMotor.Direction.REVERSE);
-        
+        while (!imu.isGyroCalibrated()) {
+            //maybe idle later
+        }
+
     }
 
 
