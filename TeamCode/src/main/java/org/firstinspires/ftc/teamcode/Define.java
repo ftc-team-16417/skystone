@@ -1,30 +1,29 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
-public class Define extends LinearOpMode {
-    DcMotor lf_drive;
-    DcMotor lr_drive;
-    DcMotor rf_drive;
-    DcMotor rr_drive;
-    Servo claw1;
-    Servo claw2;
-    DcMotor arm;
-    DcMotor leftMotor, rightMotor;
-    BNO055IMU imu;
 
-    @Override
-    public void runOpMode() throws InterruptedException {
-        lf_drive = hardwareMap.get(DcMotor.class, "lf_drive");
-        lr_drive = hardwareMap.get(DcMotor.class, "lr_drive");
-        rf_drive = hardwareMap.get(DcMotor.class, "rf_drive");
-        rr_drive = hardwareMap.get(DcMotor.class, "rr_drive");
-        claw1 = hardwareMap.get(Servo.class, "claw1");
-        claw2 = hardwareMap.get(Servo.class, "claw2");
-        arm =  hardwareMap.get(DcMotor.class, "arm");
+public class Define {
+    public static DcMotor lf_drive,lr_drive,rr_drive,rf_drive,arm;
+    public static Servo claw1,claw2,grip;
+    public static BNO055IMU imu;
+    public Define(HardwareMap hw){
+        try {
+            lf_drive = hw.get(DcMotor.class, "lf_drive");
+            lr_drive = hw.get(DcMotor.class, "lr_drive");
+            rf_drive = hw.get(DcMotor.class, "rf_drive");
+            rr_drive = hw.get(DcMotor.class, "rr_drive");
+            claw1 = hw.get(Servo.class, "claw1");
+            claw2 = hw.get(Servo.class, "claw2");
+            arm = hw.get(DcMotor.class, "arm");
+            grip = hw.get(Servo.class, "grip");
+        }
+        catch (Exception e){
+
+        }
     }
 
 

@@ -4,31 +4,37 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-
+import org.firstinspires.ftc.teamcode.Define;
 @TeleOp(name = "Mechanum")
 public class Mechanum extends LinearOpMode {
 
-    DcMotor lf_drive;
-    DcMotor lr_drive;
-    DcMotor rf_drive;
-    DcMotor rr_drive;
     @Override
     public void runOpMode(){
-        lf_drive = hardwareMap.get(DcMotor.class, "lf_drive");
-        lr_drive = hardwareMap.get(DcMotor.class, "lr_drive");
-        rf_drive = hardwareMap.get(DcMotor.class, "rf_drive");
-        rr_drive = hardwareMap.get(DcMotor.class, "rr_drive");
 
+
+        Define robot  = new Define(hardwareMap);
         waitForStart();
 
         while (opModeIsActive()) {
             double strafe = -this.gamepad1.left_stick_x;
             double forward = -this.gamepad1.left_stick_y;
             double turn = -this.gamepad1.right_stick_x;
-            lf_drive.setPower(-strafe+forward-turn);
-            rf_drive.setPower(-strafe-forward-turn);
-            lr_drive.setPower(strafe+forward-turn);
-            rr_drive.setPower(strafe-forward-turn);
+            double arm = this.gamepad1.left_trigger;
+
+            robot.lf_drive.setPower(-strafe+forward-turn);
+            robot.rf_drive.setPower(-strafe-forward-turn);
+            robot.lr_drive.setPower(strafe+forward-turn);
+            robot.rr_drive.setPower(strafe-forward-turn);
+
+//arm
+                double grip1 = this.gamepad1.left_trigger;
+                boolean grip2 = this.gamepad1.left_bumper;
+                if(grip1 > 0.5) {
+                    robot.grip.setPosition(0.25);
+                }
+                if(grip2) {
+                    robot.grip.setPosition (-0.25);
+                }
 
 
 
