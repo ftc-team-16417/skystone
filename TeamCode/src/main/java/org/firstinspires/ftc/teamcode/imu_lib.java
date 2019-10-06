@@ -19,12 +19,12 @@ public class imu_lib {
 
     public imu_lib(robot_hardware robot,action_lib action){
         this.robot = robot;
-        this.action=action;
+        this.action = action;
     }
     /**
      * Resets the cumulative angle tracking to zero.
      */
-    private void resetAngle()
+    public void resetAngle()
     {
         lastAngles = this.robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
 
@@ -35,7 +35,7 @@ public class imu_lib {
      * Get current cumulative angle rotation from last reset.
      * @return Angle in degrees. + = left, - = right.
      */
-    private double getAngle()
+    public double getAngle()
     {
 
         Orientation angles = this.robot.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
@@ -58,7 +58,7 @@ public class imu_lib {
      * See if we are moving in a straight line and if not return a power correction value.
      * @return Power adjustment, + is adjust left - is adjust right.
      */
-    private double getProportionalTerm(double target,double gain)
+    public double getProportionalTerm(double target,double gain)
     {
         double correction, angle;
         angle = getAngle();
@@ -71,7 +71,7 @@ public class imu_lib {
      * Rotate left or right the number of degrees. Does not support turning more than 180 degrees.
      * @param degrees Degrees to turn, + is left - is right
      */
-    private void rotate(int degrees, double power)
+    public void rotate(int degrees, double power)
     {
         int dir =1;
 
