@@ -9,9 +9,9 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
 public class robot_hardware {
-    public static DcMotor lf_drive,lr_drive,rr_drive,rf_drive,arm;
-    public static Servo claw1,claw2,grip;
-    public static BNO055IMU imu;
+    static DcMotor lf_drive,lr_drive,rr_drive,rf_drive,arm;
+    static Servo claw1,claw2,grip;
+    static BNO055IMU imu;
     public robot_hardware(HardwareMap hw, Telemetry telemetry){
         try {
             lf_drive = hw.get(DcMotor.class, "lf_drive");
