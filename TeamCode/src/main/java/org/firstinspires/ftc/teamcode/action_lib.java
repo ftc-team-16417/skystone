@@ -14,6 +14,11 @@ public class action_lib {
         this.robot.rr_drive.setPower(rr);
         this.robot.rf_drive.setPower(rf);
     }
+
+    void go_straight(int dir, double distance, double power){
+
+    }
+
     void stop_drive(){
         this.robot.lf_drive.setPower(0);
         this.robot.lr_drive.setPower(0);

@@ -23,6 +23,21 @@ public class robot_hardware {
             arm = hw.get(DcMotor.class, "arm");
             grip = hw.get(Servo.class, "grip");
             imu = hw.get(BNO055IMU.class, "imu");
+            BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
+
+            parameters.mode = BNO055IMU.SensorMode.IMU;
+            parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
+            parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
+            parameters.loggingEnabled = false;
+
+            imu.initialize(parameters);
+            while (!imu.isGyroCalibrated()) {
+                //idle
+            }
+
+            telemetry.addLine("got here");
+            telemetry.update();
+            //imu = hw.get(BNO055IMU.class, "imu");
         }
         catch (Exception e){
             telemetry.addLine("failed initialization, check your ids");
@@ -30,22 +45,5 @@ public class robot_hardware {
         }
     }
 
-    public void init_imu(Telemetry telemetry){
-        BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
-
-        parameters.mode = BNO055IMU.SensorMode.IMU;
-        parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
-        parameters.accelUnit = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
-        parameters.loggingEnabled = false;
-        imu.initialize(parameters);
-
-        telemetry.addData("Mode", "calibrating...");
-        telemetry.update();
-
-        // make sure the imu gyro is calibrated before continuing.
-        while (!imu.isGyroCalibrated()) {
-            //idle
-        }
-    }
 
 }
