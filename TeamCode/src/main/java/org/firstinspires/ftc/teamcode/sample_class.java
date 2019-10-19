@@ -6,7 +6,6 @@ public class sample_class extends LinearOpMode {
     @Override
     public void runOpMode(){
         robot_hardware robot = new robot_hardware(hardwareMap,telemetry);
-        robot.init_imu(telemetry);
         action_lib action = new action_lib(robot);
         waitForStart();
         //code goes here

@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-public class action_lib {
+public class action_lib{
     double OMNI_RATIO =1;
     robot_hardware this_robot;
     public action_lib(robot_hardware robot){
@@ -79,6 +79,18 @@ public class action_lib {
         this_robot.lr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this_robot.rf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this_robot.lf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    }
+    void run_drive(double lf,double rf,double rr,double lr){
+        this_robot.lf_drive.setPower(lf);
+        this_robot.lr_drive.setPower(lr);
+        this_robot.rr_drive.setPower(rr);
+        this_robot.rf_drive.setPower(rf);
+    }
+    void stop_drive(){
+        this_robot.lf_drive.setPower(0);
+        this_robot.lr_drive.setPower(0);
+        this_robot.rr_drive.setPower(0);
+        this_robot.rf_drive.setPower(0);
     }
 
 
