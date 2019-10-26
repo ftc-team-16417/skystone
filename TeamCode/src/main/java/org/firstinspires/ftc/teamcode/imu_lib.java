@@ -101,4 +101,8 @@ public class imu_lib {
         this.action.stop_drive();
     }
 
+    void goStraight(double distance, int heading, double power, double kp, double kd, double ki) {
+
+    }
+
 }
