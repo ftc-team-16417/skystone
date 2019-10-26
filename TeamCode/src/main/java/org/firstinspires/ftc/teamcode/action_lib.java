@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 public class action_lib {
 
-    static robot_hardware robot;
-    public action_lib(robot_hardware robot){
+    robot_hardware robot;
+    action_lib(robot_hardware robot){
         this.robot = robot;
     }
 

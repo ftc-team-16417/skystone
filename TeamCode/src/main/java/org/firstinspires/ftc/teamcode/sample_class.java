@@ -5,11 +5,20 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name="test")
 public class sample_class extends LinearOpMode {
+    robot_hardware robot = new robot_hardware();
+    action_lib action = null;
+    imu_lib imu = null;
+
     @Override
     public void runOpMode() throws RuntimeException{
-        robot_hardware robot = new robot_hardware(hardwareMap,telemetry);
-        action_lib action = new action_lib(robot);
+        robot.init(hardwareMap, telemetry);
+        action = new action_lib(robot);
+        imu = new imu_lib(robot,action);
         waitForStart();
+        robot.arm.setPower(0.1);
+        double test1 = imu.getAngle();
+
+        /*
         while(true){
             double forward = this.gamepad1.left_stick_x;
             double strafe = this.gamepad1.left_stick_y;
@@ -32,6 +41,6 @@ public class sample_class extends LinearOpMode {
                 robot.right_intake.setPower(0);
 
             }
-        }
+        }*/
     }
 }
