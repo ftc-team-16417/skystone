@@ -71,7 +71,7 @@ public class imu_lib {
      * Rotate left or right the number of degrees. Does not support turning more than 180 degrees.
      * @param degrees Degrees to turn, + is left - is right
      */
-    public void turn(int degrees, double power)
+    public void rotate(int degrees, double power)
     {
         int dir =1;
 

@@ -2,8 +2,8 @@ package org.firstinspires.ftc.teamcode;
 
 public class action_lib {
 
-    static robot_hardware robot;
-    public action_lib(robot_hardware robot){
+    robot_hardware robot;
+    action_lib(robot_hardware robot){
         this.robot = robot;
     }
 
@@ -14,11 +14,6 @@ public class action_lib {
         this.robot.rr_drive.setPower(rr);
         this.robot.rf_drive.setPower(rf);
     }
-
-    void go_straight(int dir, double distance, double power){
-
-    }
-
     void stop_drive(){
         this.robot.lf_drive.setPower(0);
         this.robot.lr_drive.setPower(0);
