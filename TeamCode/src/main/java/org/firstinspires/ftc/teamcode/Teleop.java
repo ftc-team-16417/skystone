@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 @TeleOp(name = "drive")
 public class Teleop extends LinearOpMode {
@@ -36,12 +37,19 @@ public class Teleop extends LinearOpMode {
                 robot.left_intake.setPower(0);
             }
             if(armup){
+                robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 robot.arm.setPower(-1);
+                robot.arm.setTargetPosition(1000);
+                while(robot.arm.isBusy());
+                robot.arm.setPower(0);
+
             }else if(armdown){
                 robot.arm.setPower(1);
             }else{
                 robot.arm.setPower(0);
             }
+            telemetry.addData("position",robot.arm.getCurrentPosition());
+            telemetry.update();
         }
     }
 }
