@@ -24,7 +24,7 @@ public class sample_class extends LinearOpMode {
             double turn = -this.gamepad1.right_stick_x;
             boolean auto = this.gamepad1.a;
             action.run_drive(strafe+forward+turn,forward+strafe+turn,
-                    -forward+strafe+turn,-forward+strafe-turn);
+                    -forward+strafe+turn,forward+strafe-turn);
 
 
             if(auto == true){
@@ -39,7 +39,7 @@ public class sample_class extends LinearOpMode {
             }
             else{
                 robot.left_intake.setPower(0);
-                robot.right_intake.setPower(0);
+                robot.right_intake.setPower(-1);
             }
         }
     }

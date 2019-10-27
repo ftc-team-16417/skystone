@@ -32,6 +32,8 @@ public class robot_hardware {
             grip = hw.get(Servo.class, "grip");
             lf_drive.setDirection(DcMotorSimple.Direction.REVERSE);
             lr_drive.setDirection(DcMotorSimple.Direction.REVERSE);
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             imu = hw.get(BNO055IMU.class, "imu");
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
