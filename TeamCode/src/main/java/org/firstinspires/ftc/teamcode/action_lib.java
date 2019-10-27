@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 public class action_lib {
 
     robot_hardware robot;
@@ -20,4 +22,27 @@ public class action_lib {
         this.robot.rr_drive.setPower(0);
         this.robot.rf_drive.setPower(0);
     }
+    void pickUp() {
+        this.robot.arm.setTargetPosition(700);
+        this.robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+
+        this.robot.arm.setPower(1);
+        while (robot.arm.isBusy()) {
+            //idle
+        }
+        this.robot.arm.setPower(0);
+        this.robot.arm.setTargetPosition(0);
+
+        this.robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        this.robot.arm.setPower(-1);x
+        while(robot.arm.isBusy()){
+            //idle
+        }
+        this.robot.arm.setPower(0);
+        this.robot.arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+
+
 }
