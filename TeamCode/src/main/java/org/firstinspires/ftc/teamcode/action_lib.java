@@ -23,7 +23,11 @@ public class action_lib {
         this.robot.rf_drive.setPower(0);
     }
     void pickUp() {
-        this.robot.arm.setTargetPosition(700);
+        this.robot.claw1.setPosition(0.35);
+        for(int x = 0; x < 100000000; x++){
+            //idle
+        }
+        this.robot.arm.setTargetPosition(1500);
         this.robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
 
@@ -31,11 +35,15 @@ public class action_lib {
         while (robot.arm.isBusy()) {
             //idle
         }
+        this.robot.claw1.setPosition(0);
+        while(this.robot.claw1.getPosition() > 0){
+            //idle
+        }
         this.robot.arm.setPower(0);
         this.robot.arm.setTargetPosition(0);
 
         this.robot.arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        this.robot.arm.setPower(-1);x
+        this.robot.arm.setPower(-1);
         while(robot.arm.isBusy()){
             //idle
         }
