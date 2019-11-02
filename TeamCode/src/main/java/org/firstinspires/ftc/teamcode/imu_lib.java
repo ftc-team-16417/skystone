@@ -87,7 +87,7 @@ public class imu_lib {
         else return;
 
         // set power to rotate.
-        this.action.run_drive(power*dir,power*dir,power*dir,power*dir);
+        this.action.run_drive(power*dir,-power*dir,-power*dir,power*dir);
 
         // rotate until turn is completed.
         if (degrees < globalAngle)
