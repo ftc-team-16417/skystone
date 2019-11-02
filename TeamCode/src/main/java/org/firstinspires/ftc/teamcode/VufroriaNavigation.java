@@ -34,6 +34,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
 import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
@@ -82,16 +83,16 @@ import static org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocaliz
  */
 
 
-@TeleOp(name="SKYSTONE Vuforia Nav", group ="Concept")
-public class VufroriaNavigation extends LinearOpMode {
+public class VufroriaNavigation{
     // IMPORTANT:  For Phone Camera, set 1) the camera source and 2) the orientation, based on how your phone is mounted:
     // 1) Camera Source.  Valid choices are:  BACK (behind screen) or FRONT (selfie side)
     // 2) Phone Orientation. Choices are: PHONE_IS_PORTRAIT = true (portrait) or PHONE_IS_PORTRAIT = false (landscape)
     //
     // NOTE: If you are running on a CONTROL HUB, with only one USB WebCam, you must select CAMERA_CHOICE = BACK; and PHONE_IS_PORTRAIT = false;
     //
-    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
+
     private static final boolean PHONE_IS_PORTRAIT = false  ;
+    private static final VuforiaLocalizer.CameraDirection CAMERA_CHOICE = BACK;
 
     /*
      * IMPORTANT: You need to obtain your own license key to use Vuforia. The string below with which
@@ -105,8 +106,6 @@ public class VufroriaNavigation extends LinearOpMode {
      * Once you've obtained a license key, copy the string from the Vuforia web site
      * and paste it in to your code on the next line, between the double quotes.
      */
-    private static final String VUFORIA_KEY =
-            "ARSsLcv/////AAABmaPnuXwWvUUcmEwKRJUD7zsqO7JIqriiHhFyZBocTTTMF8T8EA4mCbJtMqnxh1TufzQXUOapLLMgLOG9+pJ77k4LT2uFLHXqlvu6yEXSpXpYi2xtaMfGHYOnxiDtXXjp+1BUc/jZBGgET0URPPPu1HXwGy8MSHS5PDM7ZlZobnMSAuHZFKjue5KYUHBHe4QBbZ1/S9ybpA33GNHpcwK3NPAI0jeXkrovdvBDq0fE56lMN7xTsGOKcQWf8KdpKhWdvS9lzd2u1mGbNontyiXJVyKSC5E7Vr4wszt68uiSCPEy4kWZ0eh+5S0MmgJZprRo7SX4s9tSXCmuU+bceuu2X8kXZAzwX78EtkqrEe1bm3O+";
 
     // Since ImageTarget trackables use mm to specifiy their dimensions, we must use mm for all the physical dimension.
     // We will define some constants and conversions here
@@ -129,7 +128,6 @@ public class VufroriaNavigation extends LinearOpMode {
 
     // Class Members
     private OpenGLMatrix lastLocation = null;
-    private VuforiaLocalizer vuforia = null;
     private boolean targetVisible = false;
     private float phoneXRotate    = 0;
     private float phoneYRotate    = 0;
@@ -140,64 +138,60 @@ public class VufroriaNavigation extends LinearOpMode {
     DcMotor rf_drive;
     DcMotor rr_drive;
     DcMotor lr_drive;
+    robot_hardware robot;
+    List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+    VuforiaTrackable stoneTarget,blueRearBridge,redRearBridge,redFrontBridge,blueFrontBridge,red1,red2,front1,front2,blue1,blue2,rear1,rear2;
+    VuforiaTrackables targetsSkyStone;
+    OpenGLMatrix robotFromCamera;
+    // Next, translate the camera lens to where it is on the robot.
+    // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
+    final float CAMERA_FORWARD_DISPLACEMENT = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot center
+    final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
+    final float CAMERA_LEFT_DISPLACEMENT = 0;     // eg: Camera is ON the robot's center line
 
-
-    @Override public void runOpMode() {
+    VuforiaLocalizer vuforia;
+    VuforiaLocalizer.Parameters parameters;
+    public VufroriaNavigation(VuforiaLocalizer vuforia,VuforiaLocalizer.Parameters parameters) {
         /*
          * Configure Vuforia by creating a Parameter object, and passing it to the Vuforia engine.
          * We can pass Vuforia the handle to a camera preview resource (on the RC phone);
          * If no camera monitor is desired, use the parameter-less constructor instead (commented out below).
          */
-
-        lf_drive = hardwareMap.get(DcMotor.class, "lf_drive");
-        rf_drive = hardwareMap.get(DcMotor.class, "rf_drive");
-        rr_drive = hardwareMap.get(DcMotor.class, "rr_drive");
-        lr_drive = hardwareMap.get(DcMotor.class, "lr_drive");
-
-        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
-
-        // VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters();
-
-        parameters.vuforiaLicenseKey = VUFORIA_KEY;
-        parameters.cameraDirection   = CAMERA_CHOICE;
-
-        //  Instantiate the Vuforia engine
-        vuforia = ClassFactory.getInstance().createVuforia(parameters);
-
+        this.vuforia=vuforia;
+        this.parameters = parameters;
         // Load the data sets for the trackable objects. These particular data
         // sets are stored in the 'assets' part of our application.
-        VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
+        targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
 
-        VuforiaTrackable stoneTarget = targetsSkyStone.get(0);
+        stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
-        VuforiaTrackable blueRearBridge = targetsSkyStone.get(1);
+        blueRearBridge = targetsSkyStone.get(1);
         blueRearBridge.setName("Blue Rear Bridge");
-        VuforiaTrackable redRearBridge = targetsSkyStone.get(2);
+        redRearBridge = targetsSkyStone.get(2);
         redRearBridge.setName("Red Rear Bridge");
-        VuforiaTrackable redFrontBridge = targetsSkyStone.get(3);
+        redFrontBridge = targetsSkyStone.get(3);
         redFrontBridge.setName("Red Front Bridge");
-        VuforiaTrackable blueFrontBridge = targetsSkyStone.get(4);
+        blueFrontBridge = targetsSkyStone.get(4);
         blueFrontBridge.setName("Blue Front Bridge");
-        VuforiaTrackable red1 = targetsSkyStone.get(5);
+        red1 = targetsSkyStone.get(5);
         red1.setName("Red Perimeter 1");
-        VuforiaTrackable red2 = targetsSkyStone.get(6);
+        red2 = targetsSkyStone.get(6);
         red2.setName("Red Perimeter 2");
-        VuforiaTrackable front1 = targetsSkyStone.get(7);
+        front1 = targetsSkyStone.get(7);
         front1.setName("Front Perimeter 1");
-        VuforiaTrackable front2 = targetsSkyStone.get(8);
+        front2 = targetsSkyStone.get(8);
         front2.setName("Front Perimeter 2");
-        VuforiaTrackable blue1 = targetsSkyStone.get(9);
+        blue1 = targetsSkyStone.get(9);
         blue1.setName("Blue Perimeter 1");
-        VuforiaTrackable blue2 = targetsSkyStone.get(10);
+        blue2 = targetsSkyStone.get(10);
         blue2.setName("Blue Perimeter 2");
-        VuforiaTrackable rear1 = targetsSkyStone.get(11);
+        rear1 = targetsSkyStone.get(11);
         rear1.setName("Rear Perimeter 1");
-        VuforiaTrackable rear2 = targetsSkyStone.get(12);
+        rear2 = targetsSkyStone.get(12);
         rear2.setName("Rear Perimeter 2");
 
         // For convenience, gather together all the trackable objects in one easily-iterable collection */
-        List<VuforiaTrackable> allTrackables = new ArrayList<VuforiaTrackable>();
+
         allTrackables.addAll(targetsSkyStone);
 
         /**
@@ -253,7 +247,7 @@ public class VufroriaNavigation extends LinearOpMode {
 
         front1.setLocation(OpenGLMatrix
                 .translation(-halfField, -quadField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , 90)));
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 90)));
 
         front2.setLocation(OpenGLMatrix
                 .translation(-halfField, quadField, mmTargetHeight)
@@ -269,7 +263,7 @@ public class VufroriaNavigation extends LinearOpMode {
 
         rear1.setLocation(OpenGLMatrix
                 .translation(halfField, quadField, mmTargetHeight)
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0 , -90)));
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, -90)));
 
         rear2.setLocation(OpenGLMatrix
                 .translation(halfField, -quadField, mmTargetHeight)
@@ -298,22 +292,17 @@ public class VufroriaNavigation extends LinearOpMode {
 
         // Rotate the phone vertical about the X axis if it's in portrait mode
         if (PHONE_IS_PORTRAIT) {
-            phoneXRotate = 90 ;
+            phoneXRotate = 90;
         }
 
-        // Next, translate the camera lens to where it is on the robot.
-        // In this example, it is centered (left to right), but forward of the middle of the robot, and above ground level.
-        final float CAMERA_FORWARD_DISPLACEMENT  = 4.0f * mmPerInch;   // eg: Camera is 4 Inches in front of robot center
-        final float CAMERA_VERTICAL_DISPLACEMENT = 8.0f * mmPerInch;   // eg: Camera is 8 Inches above ground
-        final float CAMERA_LEFT_DISPLACEMENT     = 0;     // eg: Camera is ON the robot's center line
 
-        OpenGLMatrix robotFromCamera = OpenGLMatrix
+         robotFromCamera = OpenGLMatrix
                 .translation(CAMERA_FORWARD_DISPLACEMENT, CAMERA_LEFT_DISPLACEMENT, CAMERA_VERTICAL_DISPLACEMENT)
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, phoneYRotate, phoneZRotate, phoneXRotate));
 
         /**  Let all the trackable listeners know where the phone is.  */
         for (VuforiaTrackable trackable : allTrackables) {
-            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
+            ((VuforiaTrackableDefaultListener) trackable.getListener()).setPhoneInformation(robotFromCamera, this.parameters.cameraDirection);
         }
 
         // WARNING:
@@ -329,16 +318,8 @@ public class VufroriaNavigation extends LinearOpMode {
         // Tap the preview window to receive a fresh image.
 
         targetsSkyStone.activate();
-        lf_drive.setPower(0.5);
-        rf_drive.setPower(-0.5);
-        lr_drive.setPower(0.5);
-        rr_drive.setPower(-0.5);
-        sleep(200);
-        lf_drive.setPower(0);
-        rf_drive.setPower(0);
-        lr_drive.setPower(0);
-        rr_drive.setPower(0);
-        while (!isStopRequested()) {
+    }
+    public void track(Telemetry telemetry){
 
             // check all the trackable targets to see which one (if any) is visible.
             targetVisible = false;
@@ -377,9 +358,7 @@ public class VufroriaNavigation extends LinearOpMode {
             telemetry.update();
         }
 
-        // Disable Tracking when we are done;
-        targetsSkyStone.deactivate();
-    }
+
     public void runtoStone(double x,double heading){
         if(Math.abs(x)>10){
             VectorF translation = lastLocation.getTranslation();
