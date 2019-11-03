@@ -10,17 +10,19 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
 public class robot_hardware {
+    HardwareMap hw = null;
     static DcMotor lf_drive,lr_drive,rr_drive,rf_drive,arm,intake1,intake2;
     static Servo claw1,claw2,grip;
     static BNO055IMU imu;
-    public robot_hardware(HardwareMap hw, Telemetry telemetry){
+    public robot_hardware(HardwareMap hardware, Telemetry telemetry){
+        hw = hardware;
         try {
             lf_drive = hw.get(DcMotor.class, "lf_drive");
             lr_drive = hw.get(DcMotor.class, "lr_drive");
             rf_drive = hw.get(DcMotor.class, "rf_drive");
             rr_drive = hw.get(DcMotor.class, "rr_drive");
-            intake1 = hw.get(DcMotor.class, "LeftIntake");
-            intake2 = hw.get(DcMotor.class, "RightIntake");
+            intake1 = hw.get(DcMotor.class, "left_intake");
+            intake2 = hw.get(DcMotor.class, "right_intake");
             claw1 = hw.get(Servo.class, "claw1");
             claw2 = hw.get(Servo.class, "claw2");
             arm = hw.get(DcMotor.class, "arm");
