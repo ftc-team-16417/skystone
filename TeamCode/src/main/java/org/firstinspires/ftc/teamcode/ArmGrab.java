@@ -20,7 +20,7 @@ public class ArmGrab extends LinearOpMode {
         robot.arm.setPower(0);
 
 
-        }
+}
     @Override
     public void runOpMode(){
         //robot.init_imu(telemetry);

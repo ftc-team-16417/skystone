@@ -8,9 +8,11 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
 public class robot_hardware extends Drive {
-    public static DcMotor lf_drive,lr_drive,rr_drive,rf_drive,arm;
+    public static DcMotor lf_drive,lr_drive,rr_drive,rf_drive,arm,intake_left,intake_right;
     public static Servo claw1,claw2,grip;
-    public robot_hardware(HardwareMap hw, Telemetry telemetry){
+    public static HardwareMap hw;
+    public robot_hardware(HardwareMap hardware, Telemetry telemetry){
+        hw = hardware;
         try {
             lf_drive = hw.get(DcMotor.class, "lf_drive");
             lr_drive = hw.get(DcMotor.class, "lr_drive");
@@ -19,8 +21,11 @@ public class robot_hardware extends Drive {
             claw1 = hw.get(Servo.class, "claw1");
             claw2 = hw.get(Servo.class, "claw2");
             arm = hw.get(DcMotor.class, "arm");
-            grip = hw.get(Servo.class, "grip");
+            //grip = hw.get(Servo.class, "grip");
             imu = hw.get(BNO055IMU.class, "imu");
+            intake_left = hw.get(DcMotor.class, "left_intake");
+            intake_right = hw.get(DcMotor.class, "right_intake");
+
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
             parameters.mode = BNO055IMU.SensorMode.IMU;

@@ -15,6 +15,7 @@ public class imu_lib{
     //IMU overhead
     Orientation             lastAngles = new Orientation();
     double                  globalAngle;
+    double                  lasterror;
 
 
     public imu_lib(robot_hardware robot,action_lib action){
@@ -58,13 +59,29 @@ public class imu_lib{
      * See if we are moving in a straight line and if not return a power correction value.
      * @return Power adjustment, + is adjust left - is adjust right.
      */
-    public double getProportionalTerm(double target,double gain)
+    public double getProportionalTerm(double heading, double kp, double kd)
     {
+        // The gain value determines how sensitive the correction is to direction changes.
+        // You will have to experiment with your robot to get small smooth direction changes
+        // to stay on a straight line.
         double correction, angle;
+
         angle = getAngle();
-        double error  = target-angle;
-        correction = error * gain;
-        return correction;
+        double error = heading-angle;
+        if (angle == heading)
+            correction = 0;             // no adjustment.
+        else
+            correction = -angle;        // reverse sign of angle for correction.
+
+        correction = correction * kp;
+
+        double  dereivative = lasterror-error;
+        double Dcorrection = dereivative*kd;
+
+
+        lasterror = error;
+        return correction+Dcorrection;
+
     }
 
     /**
