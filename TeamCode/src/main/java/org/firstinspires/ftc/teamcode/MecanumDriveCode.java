@@ -12,9 +12,9 @@ public class MecanumDriveCode extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            double strafe = -this.gamepad1.left_stick_x;
-            double forward = -this.gamepad1.left_stick_y;
-            double turn = -this.gamepad1.right_stick_x;
+            double strafe = this.gamepad1.left_stick_x;
+            double forward = this.gamepad1.left_stick_y;
+            double turn = this.gamepad1.right_stick_x;
             double arm = this.gamepad1.left_trigger;
 
             hardware.rf_drive.setPower(-strafe+forward-turn);
