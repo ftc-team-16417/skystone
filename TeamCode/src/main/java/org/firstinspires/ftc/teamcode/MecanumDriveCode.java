@@ -23,7 +23,7 @@ public class MecanumDriveCode extends LinearOpMode {
             hardware.lr_drive.setPower(strafe-forward-turn);
 
 //arm
-            double intakePower = this.gamepad1.left_trigger;
+           /* double intakePower = this.gamepad1.left_trigger;
             boolean armPower1 = this.gamepad1.left_bumper;
             boolean armPower2 = this.gamepad1.right_bumper;
             hardware.right_intake.setPower(intakePower);
@@ -33,7 +33,7 @@ public class MecanumDriveCode extends LinearOpMode {
                 hardware.arm.setPower(0.5);
             }else if(armPower2) {
                 hardware.arm.setPower(-0.5);
-            }
+            }*/
 
 
 
