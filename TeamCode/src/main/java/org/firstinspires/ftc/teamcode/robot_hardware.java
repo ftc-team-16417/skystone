@@ -32,6 +32,10 @@ public class robot_hardware {
             grip = hw.get(Servo.class, "grip");
             lf_drive.setDirection(DcMotorSimple.Direction.REVERSE);
             lr_drive.setDirection(DcMotorSimple.Direction.REVERSE);
+            lf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            lr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             imu = hw.get(BNO055IMU.class, "imu");
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 

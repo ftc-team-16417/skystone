@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 @TeleOp(name = "omni drive")
 public class omni_drive extends LinearOpMode {
@@ -12,6 +13,12 @@ public class omni_drive extends LinearOpMode {
         robot.init(hardwareMap,telemetry);
         robot.lf_drive.setDirection(DcMotorSimple.Direction.REVERSE);
         robot.lr_drive.setDirection(DcMotorSimple.Direction.REVERSE);
+        robot.lf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.lr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         telemetry.addLine("done calibration");
         telemetry.update();
         waitForStart();
@@ -23,6 +30,7 @@ public class omni_drive extends LinearOpMode {
             boolean outakeBtn = this.gamepad1.right_bumper;
             boolean armup = this.gamepad1.a;
             boolean armdown = this.gamepad1.b;
+            leftstickx = 0;
             robot.lf_drive.setPower(leftstickx+leftsticky+rightstickx);
             robot.rf_drive.setPower(-leftstickx+leftsticky-rightstickx);
             robot.lr_drive.setPower(-leftstickx+leftsticky+rightstickx);
