@@ -12,30 +12,49 @@ public class OmniDrive extends LinearOpMode {
 
 
         robot_hardware robot = new robot_hardware(hardwareMap,telemetry);
-
+        action_lib action = new action_lib(robot);
+        imu_lib imu = new imu_lib(robot,action);
         waitForStart();
-
+        double prev = imu.getAngle();
         while (opModeIsActive()) {
             double strafe = -this.gamepad1.left_stick_x;
             double forward = -this.gamepad1.left_stick_y;
-            double turn = -this.gamepad1.right_stick_x;
+            double turn = (-this.gamepad1.right_stick_x)/2;
 
+            if(Math.abs(forward)>0.5&& Math.abs(strafe)<0.1&&Math.abs(turn)<0.1){
+                double correction = imu.getProportionalTerm(prev,0.08,0);
+                robot.lf_drive.setPower(-forward+correction);
+                robot.rf_drive.setPower(+forward-correction);
+                robot.lr_drive.setPower(-forward+correction);
+                robot.rr_drive.setPower(+forward-correction);
 
-            robot.lf_drive.setPower(strafe-forward+turn);
-            robot.rf_drive.setPower(strafe+forward+turn);
-            robot.lr_drive.setPower(-strafe-forward+turn);
-            robot.rr_drive.setPower(-strafe+forward+turn);
+            }
+            else {
+                prev = imu.getAngle();
+
+                robot.lf_drive.setPower(strafe - forward + turn);
+                robot.rf_drive.setPower(strafe + forward + turn);
+                robot.lr_drive.setPower(-strafe - forward + turn);
+                robot.rr_drive.setPower(-strafe + forward + turn);
+            }
 
             //arm
             double grip1 = this.gamepad1.left_trigger;
             double grip2 = this.gamepad1.right_trigger;
-            boolean arm_down = this.gamepad1.dpad_down;
-            boolean arm_up = this.gamepad1.dpad_up;
+            boolean arm_down = this.gamepad1.dpad_up;
+            boolean arm_up = this.gamepad1.dpad_down;
             boolean intake = this.gamepad1.left_bumper;
             boolean outake = this.gamepad1.right_bumper;
             boolean rotate1 = this.gamepad1.a;
             boolean rotate2 = this.gamepad1.b;
+            //--------------IN PROGRESS ---------------
+            boolean reset = this.gamepad1.y;
+            //---------------Coming Soon!--------------
 
+            if (reset){
+                robot.claw2.setPosition(0.9);
+
+            }
 
             if(grip1 > 0.5) {
                 robot.claw1.setPosition(0.45);
@@ -76,7 +95,7 @@ public class OmniDrive extends LinearOpMode {
                 robot.intake_right.setPower(0);
             }
             if(rotate1 ){
-                robot.claw2.setPosition(0.55);
+                robot.claw2.setPosition(0.35);
             }
             if(rotate2){
                 robot.claw2.setPosition(0.9);
