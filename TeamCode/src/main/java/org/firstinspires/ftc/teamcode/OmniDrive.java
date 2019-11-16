@@ -21,12 +21,12 @@ public class OmniDrive extends LinearOpMode {
             double forward = -this.gamepad1.left_stick_y;
             double turn = (-this.gamepad1.right_stick_x)/2;
 
-            if(Math.abs(forward)>0.5&& Math.abs(strafe)<0.1&&Math.abs(turn)<0.1){
+            if(Math.abs(forward)>0&& Math.abs(strafe)<0.1&&Math.abs(turn)<0.){
                 double correction = imu.getProportionalTerm(prev,0.08,0);
                 robot.lf_drive.setPower(-forward+correction);
-                robot.rf_drive.setPower(+forward-correction);
+                robot.rf_drive.setPower(+forward+correction);
                 robot.lr_drive.setPower(-forward+correction);
-                robot.rr_drive.setPower(+forward-correction);
+                robot.rr_drive.setPower(+forward+correction);
 
             }
             else {
@@ -39,6 +39,7 @@ public class OmniDrive extends LinearOpMode {
             }
 
             //arm
+it
             double grip1 = this.gamepad1.left_trigger;
             double grip2 = this.gamepad1.right_trigger;
             boolean arm_down = this.gamepad1.dpad_up;
@@ -47,7 +48,7 @@ public class OmniDrive extends LinearOpMode {
             boolean outake = this.gamepad1.right_bumper;
             boolean rotate1 = this.gamepad1.a;
             boolean rotate2 = this.gamepad1.b;
-            //--------------IN PROGRESS ---------------
+            //--------------IN PROGRESS --------------- sunny is g_y
             boolean reset = this.gamepad1.y;
             //---------------Coming Soon!--------------
 
