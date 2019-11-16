@@ -65,6 +65,7 @@ public class Straight extends LinearOpMode
         robot.lr_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.rr_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.rf_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
         robot.rf_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.rr_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lf_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

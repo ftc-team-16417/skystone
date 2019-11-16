@@ -22,22 +22,23 @@ public class OmniDrive extends LinearOpMode {
             double turn = (-this.gamepad1.right_stick_x)/2;
 
             if(Math.abs(forward)>0.5&& Math.abs(strafe)<0.1&&Math.abs(turn)<0.1){
-                double correction = imu.getProportionalTerm(prev,0.08,0);
+                double correction = 0;//.imu.getProportionalTerm(prev,0.02,0);
                 robot.lf_drive.setPower(-forward+correction);
-                robot.rf_drive.setPower(+forward-correction);
+                robot.rf_drive.setPower(+forward+correction);
                 robot.lr_drive.setPower(-forward+correction);
-                robot.rr_drive.setPower(+forward-correction);
+                robot.rr_drive.setPower(+forward+correction);
+
 
             }
             else {
                 prev = imu.getAngle();
-
                 robot.lf_drive.setPower(strafe - forward + turn);
                 robot.rf_drive.setPower(strafe + forward + turn);
                 robot.lr_drive.setPower(-strafe - forward + turn);
                 robot.rr_drive.setPower(-strafe + forward + turn);
             }
-
+            telemetry.addData("previous angle ", prev);
+            telemetry.update();
             //arm
             double grip1 = this.gamepad1.left_trigger;
             double grip2 = this.gamepad1.right_trigger;

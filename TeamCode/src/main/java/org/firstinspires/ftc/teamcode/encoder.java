@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-@Autonomous(name="encoder")
+@Autonomous(name="Omni Drive Encoder")
 public class encoder extends LinearOpMode {
     robot_hardware robot = new robot_hardware(hardwareMap,telemetry);
     @Override
@@ -36,6 +36,7 @@ public class encoder extends LinearOpMode {
         robot.lr_drive.setTargetPosition(target);
         robot.rr_drive.setTargetPosition(target);
         robot.rf_drive.setTargetPosition(target);
+
         robot.lf_drive.setPower(speed);
         robot.lr_drive.setPower(speed);
         robot.rr_drive.setPower(speed);
@@ -83,8 +84,8 @@ public class encoder extends LinearOpMode {
     }
     public void displayInfo(){
         telemetry.addData("left front encoder", robot.lf_drive.getCurrentPosition());
-        telemetry.addData("left rear encdoer", robot.lr_drive.getCurrentPosition());
-        telemetry.addData("right rear enconder", robot.rr_drive.getCurrentPosition());
+        telemetry.addData("left rear encoder", robot.lr_drive.getCurrentPosition());
+        telemetry.addData("right rear encoder", robot.rr_drive.getCurrentPosition());
         telemetry.addData("right front encoder", robot.rf_drive.getCurrentPosition());
         telemetry.update();
     }
