@@ -2,37 +2,30 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 
-public class robot_hardware {
-    HardwareMap hw = null;
-    public DcMotor lf_drive,lr_drive,rr_drive,rf_drive,arm,left_intake,right_intake;
-    public Servo claw1,claw2,grip;
-    public BNO055IMU imu;
-    public robot_hardware(){
-
-    }
-    public void init(HardwareMap hwMap, Telemetry telemetry){
-        hw = hwMap;
+public class robot_hardware extends Drive {
+    public static DcMotor lf_drive,lr_drive,rr_drive,rf_drive,arm,intake_left,intake_right;
+    public static Servo claw1,claw2,grip;
+    public static HardwareMap hw;
+    public robot_hardware(HardwareMap hardware, Telemetry telemetry){
+        hw = hardware;
         try {
             lf_drive = hw.get(DcMotor.class, "lf_drive");
             lr_drive = hw.get(DcMotor.class, "lr_drive");
             rf_drive = hw.get(DcMotor.class, "rf_drive");
             rr_drive = hw.get(DcMotor.class, "rr_drive");
-            left_intake = hw.get(DcMotor.class,"left_intake");
-            right_intake = hw.get(DcMotor.class,"right_intake");
             claw1 = hw.get(Servo.class, "claw1");
             claw2 = hw.get(Servo.class, "claw2");
             arm = hw.get(DcMotor.class, "arm");
-            grip = hw.get(Servo.class, "grip");
-            lf_drive.setDirection(DcMotorSimple.Direction.REVERSE);
-            lr_drive.setDirection(DcMotorSimple.Direction.REVERSE);
+            //grip = hw.get(Servo.class, "grip");
             imu = hw.get(BNO055IMU.class, "imu");
+            intake_left = hw.get(DcMotor.class, "left_intake");
+            intake_right = hw.get(DcMotor.class, "right_intake");
+
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
             parameters.mode = BNO055IMU.SensorMode.IMU;
@@ -48,11 +41,15 @@ public class robot_hardware {
             while (!imu.isGyroCalibrated()) {
                 //idle
             }
+            arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            lr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            lf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
         catch (Exception e){
             telemetry.addLine("failed initialization, check your ids");
             telemetry.update();
         }
     }
-
 }

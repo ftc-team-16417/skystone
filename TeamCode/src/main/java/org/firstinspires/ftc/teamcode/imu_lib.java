@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -7,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 //
-public class imu_lib {
+public class imu_lib{
     //robot hardware definitions
     robot_hardware robot;
     action_lib     action;
@@ -15,6 +17,8 @@ public class imu_lib {
     //IMU overhead
     Orientation             lastAngles = new Orientation();
     double                  globalAngle;
+    double                  lasterror;
+    double ticks = 720/(Math.PI*10.2);
 
 
     public imu_lib(robot_hardware robot,action_lib action){
@@ -58,13 +62,29 @@ public class imu_lib {
      * See if we are moving in a straight line and if not return a power correction value.
      * @return Power adjustment, + is adjust left - is adjust right.
      */
-    public double getProportionalTerm(double target,double gain)
+    public double getProportionalTerm(double heading, double kp, double kd)
     {
+        // The gain value determines how sensitive the correction is to direction changes.
+        // You will have to experiment with your robot to get small smooth direction changes
+        // to stay on a straight line.
         double correction, angle;
+
         angle = getAngle();
-        double error  = target-angle;
-        correction = error * gain;
-        return correction;
+        double error = heading-angle;
+        if (angle == heading)
+            correction = 0;             // no adjustment.
+        else
+            correction = -angle;        // reverse sign of angle for correction.
+
+        correction = correction * kp;
+
+        double  derivative = lasterror-error;
+        double Dcorrection = derivative*kd;
+
+
+        lasterror = error;
+        return correction+Dcorrection;
+
     }
 
     /**
@@ -99,6 +119,37 @@ public class imu_lib {
 
         // turn the motors off.
         this.action.stop_drive();
+    }
+
+    public void goStraightNoGyro(int direction, double cm, double power, robot_hardware robot){
+        robot.lf_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.lr_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rr_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rf_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.rf_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.rr_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lf_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        robot.lr_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        double strafe =0,forward =0;
+        if (direction == 1){
+            strafe = 0;
+            forward = power;
+        }else{
+            strafe = power;
+            forward = 0;
+        }
+
+        while(java.lang.Math.abs(robot.rf_drive.getCurrentPosition()) < cm*ticks) {
+            robot.lf_drive.setPower(-strafe+forward);
+            robot.rf_drive.setPower(-strafe-forward);
+            robot.lr_drive.setPower(strafe+forward);
+            robot.rr_drive.setPower(strafe-forward);
+        }
+
+        robot.lf_drive.setPower(0);
+        robot.rf_drive.setPower(0);
+        robot.lr_drive.setPower(0);
+        robot.rr_drive.setPower(0);
     }
 
 }
