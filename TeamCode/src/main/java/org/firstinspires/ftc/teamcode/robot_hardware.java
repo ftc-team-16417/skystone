@@ -42,6 +42,10 @@ public class robot_hardware extends Drive {
                 //idle
             }
             arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            lr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            lf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            rf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
         catch (Exception e){
             telemetry.addLine("failed initialization, check your ids");
