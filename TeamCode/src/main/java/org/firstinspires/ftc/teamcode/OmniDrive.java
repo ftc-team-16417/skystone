@@ -76,7 +76,7 @@ public class OmniDrive extends LinearOpMode {
                 robot.intake_right.setPower(0);
             }
             if(rotate1 ){
-                robot.claw2.setPosition(0.55);
+                robot.claw2.setPosition(0.35);
             }
             if(rotate2){
                 robot.claw2.setPosition(0.9);
