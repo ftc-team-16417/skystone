@@ -73,7 +73,7 @@ public class Straight extends LinearOpMode
 
         while(robot.rf_drive.getCurrentPosition() < cm*ticks) {
 
-            double correction = imu.getProportionalTerm(0,0.01,0.05);//get correction value
+            double correction = imu.getProportionalTerm(0,imu.getAngle(),0.01,0.05);//get correction value
             robot.lf_drive.setPower(powerVoid - correction);
             robot.lr_drive.setPower(powerVoid + correction);
             robot.rr_drive.setPower(powerVoid + correction);
