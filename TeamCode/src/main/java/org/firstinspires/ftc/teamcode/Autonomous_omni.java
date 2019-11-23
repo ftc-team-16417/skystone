@@ -12,7 +12,10 @@ public class Autonomous_omni extends LinearOpMode {
         imu_lib imu = null;
         waitForStart();
         while(opModeIsActive()) {
-            
+            telemetry.addData("lf_drive", robot.lf_drive.getCurrentPosition());
+            telemetry.addData("lr_drive", robot.lf_drive.getCurrentPosition());
+            telemetry.addData("rf_drive", robot.lf_drive.getCurrentPosition());
+            telemetry.addData("rr_drive", robot.lf_drive.getCurrentPosition());
 
         }
 
