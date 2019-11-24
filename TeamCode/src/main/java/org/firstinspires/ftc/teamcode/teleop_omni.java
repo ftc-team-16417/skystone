@@ -12,16 +12,31 @@ public class teleop_omni extends LinearOpMode {
         robot.init(hardwareMap, telemetry);
         action_lib action = new action_lib(robot);
         imu_lib imu = new imu_lib(robot, action);
+        robot.lf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.lr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         waitForStart();
 
         while(opModeIsActive()){
+
             double forward = gamepad1.left_stick_y;
             double sideways = gamepad1.left_stick_x;
             double cwRotate = gamepad1.right_stick_x;
-            this.robot.lf_drive.setPower(forward-sideways+cwRotate);
-            this.robot.lr_drive.setPower(forward+sideways+cwRotate);
-            this.robot.rf_drive.setPower(-forward-sideways+cwRotate);
-            this.robot.rr_drive.setPower(-forward+sideways+cwRotate);
+            boolean armdown = gamepad1.left_bumper;
+            boolean armup = gamepad1.right_bumper;
+            robot.lf_drive.setPower(forward-sideways-cwRotate);
+            robot.lr_drive.setPower(forward+sideways-cwRotate);
+            robot.rf_drive.setPower(-forward-sideways-cwRotate);
+            robot.rr_drive.setPower(-forward+sideways-cwRotate);
+            if(armdown == true){
+                while()
+                robot.arm.setPower(0.5);
+            }
+            else if(armup == true){
+                robot.arm.setPower(-0.5)
+            }
         }
     }
 }
