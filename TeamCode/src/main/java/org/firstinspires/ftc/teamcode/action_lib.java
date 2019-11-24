@@ -92,7 +92,11 @@ public class action_lib {
         robot.lr_drive.setPower(0);
         robot.rf_drive.setPower(0);
         robot.rr_drive.setPower(0);
-
+        telemetry.addData("lf_drive", robot.lf_drive.getCurrentPosition());
+        telemetry.addData("lr_drive", robot.lf_drive.getCurrentPosition());
+        telemetry.addData("rf_drive", robot.lf_drive.getCurrentPosition());
+        telemetry.addData("rr_drive", robot.lf_drive.getCurrentPosition());
+        telemetry.update();
 
     }
 

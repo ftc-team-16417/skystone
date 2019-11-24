@@ -6,25 +6,25 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 public class Autonomous_omni extends LinearOpMode {
 
     @Override
-    public void runOpMode(){
+    public void runOpMode() {
         robot_hardware robot = new robot_hardware();
-        robot.init(hardwareMap,telemetry);
+        robot.init(hardwareMap, telemetry);
         action_lib action = new action_lib(robot);
-        imu_lib imu = new imu_lib(robot,action);
+        imu_lib imu = new imu_lib(robot, action);
         waitForStart();
-        while(opModeIsActive()) {
+        while (opModeIsActive()) {
             boolean move = this.gamepad1.y;
-            if(move == true){
-                action.AutoMove(cm_to_ticks(100),telemetry,imu);
+            if (move == true) {
+                action.AutoMove(cm_to_ticks(100), telemetry, imu);
             }
-
-
         }
-
     }
-    int cm_to_ticks(double distance){
-        double rotation = distance/(Math.PI*12.7)/  Math.sqrt(2);
-        return (int)Math.floor(rotation*95.9);
 
+    int cm_to_ticks(double distance) {
+        double rotation = 1.4*(distance / (Math.PI * 12));
+        return (int) Math.floor(rotation * 383.6);
     }
+
 }
+
+
