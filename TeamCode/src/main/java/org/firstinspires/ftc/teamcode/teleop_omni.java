@@ -30,12 +30,25 @@ public class teleop_omni extends LinearOpMode {
             robot.lr_drive.setPower(forward+sideways-cwRotate);
             robot.rf_drive.setPower(-forward-sideways-cwRotate);
             robot.rr_drive.setPower(-forward+sideways-cwRotate);
-            if(armdown == true){
-                while()
-                robot.arm.setPower(0.5);
+            if(armdown == true) {
+                while (armdown == true) {
+                    robot.arm.setPower(0.5);
+                    if(armdown == false){
+                        robot.arm.setPower(0);
+                        break;
+                    }
+
+                }
+
             }
             else if(armup == true){
-                robot.arm.setPower(-0.5)
+                while(armup == true) {
+                    robot.arm.setPower(-0.5);
+                    if(armup == false){
+                        robot.arm.setPower(0);
+                        break;
+                    }
+                }
             }
         }
     }
