@@ -23,7 +23,7 @@ public class Autonomous_omni extends LinearOpMode {
 
     }
     int cm_to_ticks(double distance){
-        double rotation = distance/(Math.PI*12.7)/  Math.sqrt(2)*2;
+        double rotation = distance/(Math.PI*12.7)/  Math.sqrt(2);
         return (int)Math.floor(rotation*95.9);
 
     }
