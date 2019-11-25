@@ -11,9 +11,16 @@ public class sample_class extends LinearOpMode {
         robot_hardware robot = new robot_hardware(hardwareMap,telemetry);
         action_lib action = new action_lib(robot);
         imu_lib imu = new imu_lib(robot, action);
+        robot.arm.setPower(0.3);
+        try{
+            wait(1000);
+        }catch(Exception e){}
+        while(robot.arm.getCurrentPosition()<=100) {
+            robot.arm.setPower(-0.05);
+        }
         waitForStart();
         //code goes here
-        imu.goStraightNoGyro(1,20,0.5,robot);
+        imu.goStraightIMU(1, 0,20,0.5,robot);
 
     }
 }

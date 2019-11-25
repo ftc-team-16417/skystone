@@ -121,7 +121,7 @@ public class imu_lib{
         this.action.stop_drive();
     }
 
-    public void goStraightNoGyro(int direction, double cm, double power, robot_hardware robot){
+    public void goStraightIMU(int direction, double heading, double cm, double power, robot_hardware robot){
         robot.lf_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.lr_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         robot.rr_drive.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -140,6 +140,7 @@ public class imu_lib{
         }
 
         while(java.lang.Math.abs(robot.rf_drive.getCurrentPosition()) < cm*ticks) {
+            double correction = getProportionalTerm(heading, 0.1, 0.5);
             robot.lf_drive.setPower(-strafe+forward);
             robot.rf_drive.setPower(-strafe-forward);
             robot.lr_drive.setPower(strafe+forward);
