@@ -17,7 +17,9 @@ public class Autonomous_omni extends LinearOpMode {
             if (move == true) {
                 action.AutoMove(cm_to_ticks(100), telemetry, imu);
             }
+
         }
+
     }
 
     int cm_to_ticks(double distance) {

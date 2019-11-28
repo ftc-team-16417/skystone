@@ -26,6 +26,8 @@ public class teleop_omni extends LinearOpMode {
             double cwRotate = gamepad1.right_stick_x;
             boolean armdown = gamepad1.left_bumper;
             boolean armup = gamepad1.right_bumper;
+            boolean clampDown = gamepad1.x;
+            boolean clampUp = gamepad1.b;
             robot.lf_drive.setPower(forward-sideways-cwRotate);
             robot.lr_drive.setPower(forward+sideways-cwRotate);
             robot.rf_drive.setPower(-forward-sideways-cwRotate);
@@ -50,6 +52,23 @@ public class teleop_omni extends LinearOpMode {
                     }
                 }
             }
+            if(clampDown == true){
+                robot.grab1.setPosition(0.5);
+                robot.grab2.setPosition(-0.5);
+                while(robot.grab1.getPosition() < 0.5){
+                    //idle
+                }
+                clampDown = false;
+            }
+            else if(clampUp == true){
+                robot.grab1.setPosition(0.2);
+                robot.grab2.setPosition(-0.2);
+                while(robot.grab1.getPosition() > 0.2){
+                    //idle
+                }
+                clampUp = false;
+            }
         }
+
     }
 }
