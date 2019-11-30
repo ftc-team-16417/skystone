@@ -9,11 +9,12 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class robot_hardware extends Drive {
     public static DcMotor lf_drive,lr_drive,rr_drive,rf_drive,arm,intake_left,intake_right;
-    public static Servo claw1,claw2,grip;
+    public static Servo claw1,claw2,grip,grab_2,grab_1;
     public static HardwareMap hw;
     public robot_hardware(HardwareMap hardware, Telemetry telemetry){
         hw = hardware;
         try {
+
             lf_drive = hw.get(DcMotor.class, "lf_drive");
             lr_drive = hw.get(DcMotor.class, "lr_drive");
             rf_drive = hw.get(DcMotor.class, "rf_drive");
@@ -25,7 +26,8 @@ public class robot_hardware extends Drive {
             imu = hw.get(BNO055IMU.class, "imu");
             intake_left = hw.get(DcMotor.class, "left_intake");
             intake_right = hw.get(DcMotor.class, "right_intake");
-
+            grab_2 = hw.get(Servo.class,"grab2");
+            grab_1 = hw.get(Servo.class,"grab1");
             BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
             parameters.mode = BNO055IMU.SensorMode.IMU;

@@ -59,14 +59,14 @@ public class imu_lib{
      * See if we are moving in a straight line and if not return a power correction value.
      * @return Power adjustment, + is adjust left - is adjust right.
      */
-    public double getProportionalTerm(double heading, double kp, double kd)
+    public double getProportionalTerm(double heading,double angle, double kp, double kd)
     {
         // The gain value determines how sensitive the correction is to direction changes.
         // You will have to experiment with your robot to get small smooth direction changes
         // to stay on a straight line.
-        double correction, angle;
+        double correction;
 
-        angle = getAngle();
+        //angle = getAngle();
         double error = heading-angle;
         if (angle == heading)
             correction = 0;             // no adjustment.
@@ -84,10 +84,7 @@ public class imu_lib{
 
     }
 
-    /**
-     * Rotate left or right the number of degrees. Does not support turning more than 180 degrees.
-     * @param degrees Degrees to turn, + is left - is right
-     */
+
     public void rotate(int degrees, double power)
     {
         int dir =1;

@@ -92,6 +92,10 @@ public class action_lib{
         this_robot.rr_drive.setPower(0);
         this_robot.rf_drive.setPower(0);
     }
+    void grab (double pos){
+        this_robot.grab_1.setPosition(pos);
+        this_robot.grab_2.setPosition(pos);
+    }
 
 
 
