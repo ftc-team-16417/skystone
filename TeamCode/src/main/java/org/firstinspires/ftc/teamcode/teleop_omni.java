@@ -26,44 +26,27 @@ public class teleop_omni extends LinearOpMode {
             double cwRotate = gamepad1.right_stick_x;
             boolean armdown = gamepad1.left_bumper;
             boolean armup = gamepad1.right_bumper;
+
             boolean clampDown = gamepad1.x;
             boolean clampUp = gamepad1.b;
             robot.lf_drive.setPower(forward-sideways-cwRotate);
             robot.lr_drive.setPower(forward+sideways-cwRotate);
             robot.rf_drive.setPower(-forward-sideways-cwRotate);
             robot.rr_drive.setPower(-forward+sideways-cwRotate);
-            if(armdown == true) {
-                while (armdown == true) {
-                    robot.arm.setPower(0.5);
-                    if(armdown == false){
-                        robot.arm.setPower(0);
-                        break;
-                    }
-
-                }
-
-            }
-            else if(armup == true){
-                while(armup == true) {
-                    robot.arm.setPower(-0.5);
-                    if(armup == false){
-                        robot.arm.setPower(0);
-                        break;
-                    }
-                }
-            }
+            //X FOR CLAMPING DOWN
             if(clampDown == true){
-                robot.grab1.setPosition(0.5);
-                robot.grab2.setPosition(-0.5);
-                while(robot.grab1.getPosition() < 0.5){
+                robot.grab1.setPosition(0.08);
+                robot.grab2.setPosition(0.53);
+                while(robot.grab1.getPosition() > 0.1){
                     //idle
-                }
+                 }
                 clampDown = false;
             }
+            //B FOR CLAMPING UP
             else if(clampUp == true){
-                robot.grab1.setPosition(0.2);
-                robot.grab2.setPosition(-0.2);
-                while(robot.grab1.getPosition() > 0.2){
+                robot.grab1.setPosition(0.35);
+                robot.grab2.setPosition(0.25);
+                while(robot.grab1.getPosition() < 0.3){
                     //idle
                 }
                 clampUp = false;

@@ -29,7 +29,6 @@ public class robot_hardware {
             claw1 = hw.get(Servo.class, "claw1");
             claw2 = hw.get(Servo.class, "claw2");
             arm = hw.get(DcMotor.class, "arm");
-            grip = hw.get(Servo.class, "grip");
             lf_drive.setDirection(DcMotorSimple.Direction.REVERSE);
             lr_drive.setDirection(DcMotorSimple.Direction.REVERSE);
             imu = hw.get(BNO055IMU.class, "imu");
