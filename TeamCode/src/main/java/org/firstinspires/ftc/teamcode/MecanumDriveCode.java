@@ -11,16 +11,24 @@ public class MecanumDriveCode extends LinearOpMode {
     @Override
     public void runOpMode() {
         robot_hardware robot = new robot_hardware(hardwareMap, telemetry);
+        action_lib action = new action_lib(robot);
+        imu_lib imu = new imu_lib(robot, action);
         robot.claw2.setPosition(0.8);
+        imu.resetAngle();
+        double heading = 0;
+        double correction = 0;
         int speedCheck = 0;
+
         waitForStart();
 
         while (opModeIsActive()) {
             double strafe = -this.gamepad1.left_stick_x;
             double forward = -this.gamepad1.left_stick_y;
             double turn = -this.gamepad1.right_stick_x;
-
-
+            while(turn!=0){
+                heading = imu.getAngle();
+                correction = imu.getProportionalTerm(heading,0.005, 0);
+            }
 
             float arm_down = this.gamepad1.right_trigger;
             boolean arm_up = this.gamepad1.right_bumper;
@@ -33,7 +41,7 @@ public class MecanumDriveCode extends LinearOpMode {
             boolean speed = this.gamepad1.start;
 
             if (speed){
-                sleep(200);
+                sleep(300);
                 if (speedCheck == 0) {
                     speedCheck = 1;
                 } else if (speedCheck == 1) {
@@ -52,12 +60,18 @@ public class MecanumDriveCode extends LinearOpMode {
                 strafe = -this.gamepad1.left_stick_x;
                 forward = -this.gamepad1.left_stick_y;
                 turn = -this.gamepad1.right_stick_x;
+                while(turn!=0){
+                    heading  = imu.getAngle();
+                    correction = imu.getProportionalTerm(heading,0.005, 0);
+                }
+
             }
 
-            robot.lf_drive.setPower(strafe - forward + turn);
-            robot.rf_drive.setPower(strafe + forward + turn);
-            robot.lr_drive.setPower(-strafe - forward + turn);
-            robot.rr_drive.setPower(-strafe + forward + turn);
+
+            robot.lf_drive.setPower(strafe - forward + turn + correction);
+            robot.rf_drive.setPower(strafe + forward + turn + correction);
+            robot.lr_drive.setPower(-strafe - forward + turn + correction);
+            robot.rr_drive.setPower(-strafe + forward + turn + correction);
 
             if (raiseArm) {
                 if (robot.arm.getCurrentPosition() < 2000) {
@@ -90,9 +104,9 @@ public class MecanumDriveCode extends LinearOpMode {
                 robot.intake_right.setPower(0);
             }
             if (grip) {
-                robot.claw2.setPosition(0.55);
+                robot.claw2.setPosition(0.5);
             } else if (gripRelease) {
-                robot.claw2.setPosition(0.8);
+                robot.claw2.setPosition(0.9);
             }
             if (resetArm) {
                 while (robot.arm.getCurrentPosition() > 10) robot.arm.setPower(-1);

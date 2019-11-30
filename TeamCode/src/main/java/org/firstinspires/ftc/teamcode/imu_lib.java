@@ -15,9 +15,9 @@ public class imu_lib{
     action_lib     action;
 
     //IMU overhead
-    Orientation             lastAngles = new Orientation();
-    double                  globalAngle;
-    double                  lasterror;
+    Orientation lastAngles = new Orientation();
+    double globalAngle;
+    double lasterror;
     double ticks = 720/(Math.PI*10.2);
 
 
@@ -141,10 +141,10 @@ public class imu_lib{
 
         while(java.lang.Math.abs(robot.rf_drive.getCurrentPosition()) < cm*ticks) {
             double correction = getProportionalTerm(heading, 0.1, 0.5);
-            robot.lf_drive.setPower(-strafe+forward);
-            robot.rf_drive.setPower(-strafe-forward);
-            robot.lr_drive.setPower(strafe+forward);
-            robot.rr_drive.setPower(strafe-forward);
+            robot.lf_drive.setPower(-strafe+forward+correction);
+            robot.rf_drive.setPower(-strafe-forward+correction);
+            robot.lr_drive.setPower(strafe+forward-correction);
+            robot.rr_drive.setPower(strafe-forward-correction);
         }
 
         robot.lf_drive.setPower(0);
