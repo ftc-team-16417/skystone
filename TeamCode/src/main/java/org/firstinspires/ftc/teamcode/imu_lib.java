@@ -130,7 +130,7 @@ public class imu_lib{
         robot.rr_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lf_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         robot.lr_drive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        double strafe =0,forward =0;
+        double strafe,forward;
         if (direction == 1){
             strafe = 0;
             forward = power;
@@ -143,8 +143,8 @@ public class imu_lib{
             double correction = getProportionalTerm(heading, 0.1, 0.5);
             robot.lf_drive.setPower(-strafe+forward+correction);
             robot.rf_drive.setPower(-strafe-forward+correction);
-            robot.lr_drive.setPower(strafe+forward-correction);
-            robot.rr_drive.setPower(strafe-forward-correction);
+            robot.lr_drive.setPower(strafe+forward+correction);
+            robot.rr_drive.setPower(strafe-forward+correction);
         }
 
         robot.lf_drive.setPower(0);
