@@ -115,7 +115,7 @@ public class OmniDrive extends LinearOpMode {
                     robot.claw2.setPosition(0.9);
                 }
                 if (grab_up) {
-                    action.grab(0);
+                   action.grab(0);
                 }
                 if (grab_down){
                     action.grab(0.2);
