@@ -29,10 +29,10 @@ public class teleop_omni extends LinearOpMode {
 
             boolean clampDown = gamepad1.x;
             boolean clampUp = gamepad1.b;
-            robot.lf_drive.setPower(forward-sideways-cwRotate);
-            robot.lr_drive.setPower(forward+sideways-cwRotate);
-            robot.rf_drive.setPower(-forward-sideways-cwRotate);
-            robot.rr_drive.setPower(-forward+sideways-cwRotate);
+            robot.lf_drive.setPower(sideways+forward+rightstickx);
+            robot.rf_drive.setPower(-sideways+forward-rightstickx);
+            robot.lr_drive.setPower(-sideways+forward+rightstickx);
+            robot.rr_drive.setPower(sideways+forward-rightstickx);
             //X FOR CLAMPING DOWN
             if(clampDown == true){
                 robot.grab1.setPosition(0.08);
