@@ -7,7 +7,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name="teleop omni")
 public class teleop_omni extends LinearOpMode {
     @Override
-    public void runOpMode(){
+    public void runOpMode() {
         robot_hardware robot = new robot_hardware();
         robot.init(hardwareMap, telemetry);
         action_lib action = new action_lib(robot);
@@ -19,7 +19,7 @@ public class teleop_omni extends LinearOpMode {
         robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         waitForStart();
 
-        while(opModeIsActive()){
+        while (opModeIsActive()) {
 
             double forward = gamepad1.left_stick_y;
             double sideways = gamepad1.left_stick_x;
@@ -29,29 +29,56 @@ public class teleop_omni extends LinearOpMode {
 
             boolean clampDown = gamepad1.x;
             boolean clampUp = gamepad1.b;
-            robot.lf_drive.setPower(sideways+forward+rightstickx);
-            robot.rf_drive.setPower(-sideways+forward-rightstickx);
-            robot.lr_drive.setPower(-sideways+forward+rightstickx);
-            robot.rr_drive.setPower(sideways+forward-rightstickx);
+            robot.lf_drive.setPower(forward - sideways - cwRotate);
+            robot.lr_drive.setPower(forward + sideways - cwRotate);
+            robot.rf_drive.setPower(-forward - sideways - cwRotate);
+            robot.rr_drive.setPower(-forward + sideways - cwRotate);
+            if (armdown == true) {
+                while (armdown == true) {
+                    robot.arm.setPower(0.5);
+                    if (armdown == false) {
+                        robot.arm.setPower(0);
+                        break;
+                    }
+
+                }
+
+            } else if (armup == true) {
+                while (armup == true) {
+                    robot.arm.setPower(-0.5);
+                    if (armup == false) {
+                        robot.arm.setPower(0);
+                        break;
+                    }
+                }
+            }
             //X FOR CLAMPING DOWN
-            if(clampDown == true){
-                robot.grab1.setPosition(0.08);
-                robot.grab2.setPosition(0.53);
-                while(robot.grab1.getPosition() > 0.1){
-                    //idle
-                 }
+            if (clampDown == true) {
+                robot.grab1.setPosition(0.5);
+                robot.grab2.setPosition(-0.5);
+                while (robot.grab1.getPosition() < 0.5) {
+                    robot.grab1.setPosition(0.08);
+                    robot.grab2.setPosition(0.53);
+                    while (robot.grab1.getPosition() > 0.1) {
+                        //idle
+                    }
+                }
                 clampDown = false;
             }
             //B FOR CLAMPING UP
-            else if(clampUp == true){
-                robot.grab1.setPosition(0.35);
-                robot.grab2.setPosition(0.25);
-                while(robot.grab1.getPosition() < 0.3){
-                    //idle
+            else if (clampUp == true) {
+                robot.grab1.setPosition(0.2);
+                robot.grab2.setPosition(-0.2);
+                while (robot.grab1.getPosition() > 0.2) {
+                    robot.grab1.setPosition(0.35);
+                    robot.grab2.setPosition(0.25);
+                    while (robot.grab1.getPosition() < 0.3) {
+                        //idle
+                    }
+                    clampUp = false;
                 }
-                clampUp = false;
             }
-        }
 
+        }
     }
 }
