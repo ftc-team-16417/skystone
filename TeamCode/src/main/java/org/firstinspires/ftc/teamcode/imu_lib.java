@@ -18,7 +18,7 @@ public class imu_lib{
     Orientation lastAngles = new Orientation();
     double globalAngle;
     double lasterror;
-    double ticks = 720/(Math.PI*10.2*1.4);
+    double ticks = 383.6/(Math.PI*10.2);
     double prev = 0, now = 0;
 
 
