@@ -15,8 +15,6 @@ public class MecanumDriveCode extends LinearOpMode {
         imu_lib imu = new imu_lib(robot, action);
         robot.claw2.setPosition(0.8);
         imu.resetAngle();
-        double heading = 0;
-        double correction = 0;
         int speedCheck = 0;
 
         waitForStart();
@@ -25,10 +23,6 @@ public class MecanumDriveCode extends LinearOpMode {
             double strafe = -this.gamepad1.left_stick_x;
             double forward = -this.gamepad1.left_stick_y;
             double turn = -this.gamepad1.right_stick_x;
-            while(turn!=0){
-                heading = imu.getAngle();
-                correction = imu.getProportionalTerm(heading,0.005, 0);
-            }
 
             float arm_down = this.gamepad1.right_trigger;
             boolean arm_up = this.gamepad1.right_bumper;
@@ -60,18 +54,14 @@ public class MecanumDriveCode extends LinearOpMode {
                 strafe = -this.gamepad1.left_stick_x;
                 forward = -this.gamepad1.left_stick_y;
                 turn = -this.gamepad1.right_stick_x;
-                while(turn!=0){
-                    heading  = imu.getAngle();
-                    correction = imu.getProportionalTerm(heading,0.005, 0);
-                }
 
             }
 
 
-            robot.lf_drive.setPower(strafe - forward + turn + correction);
-            robot.rf_drive.setPower(strafe + forward + turn + correction);
-            robot.lr_drive.setPower(-strafe - forward + turn + correction);
-            robot.rr_drive.setPower(-strafe + forward + turn + correction);
+            robot.lf_drive.setPower(strafe - forward + turn);
+            robot.rf_drive.setPower(strafe + forward + turn);
+            robot.lr_drive.setPower(-strafe - forward + turn);
+            robot.rr_drive.setPower(-strafe + forward + turn);
 
             if (raiseArm) {
                 if (robot.arm.getCurrentPosition() < 2000) {
@@ -104,7 +94,7 @@ public class MecanumDriveCode extends LinearOpMode {
                 robot.intake_right.setPower(0);
             }
             if (grip) {
-                robot.claw2.setPosition(0.5);
+                robot.claw2.setPosition(0.4);
             } else if (gripRelease) {
                 robot.claw2.setPosition(0.9);
             }

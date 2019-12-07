@@ -18,7 +18,8 @@ public class imu_lib{
     Orientation lastAngles = new Orientation();
     double globalAngle;
     double lasterror;
-    double ticks = 720/(Math.PI*10.2);
+    double ticks = 720/(Math.PI*10.2*1.4);
+    double prev = 0, now = 0;
 
 
     public imu_lib(robot_hardware robot,action_lib action){
@@ -139,14 +140,30 @@ public class imu_lib{
             forward = 0;
         }
 
-        while(java.lang.Math.abs(robot.rf_drive.getCurrentPosition()) < cm*ticks) {
-            double correction = getProportionalTerm(heading, 0.1, 0.5);
-            robot.lf_drive.setPower(-strafe+forward+correction);
-            robot.rf_drive.setPower(-strafe-forward+correction);
-            robot.lr_drive.setPower(strafe+forward+correction);
-            robot.rr_drive.setPower(strafe-forward+correction);
+        if(power>0) {
+            while (java.lang.Math.abs(robot.rf_drive.getCurrentPosition()) < cm * ticks + prev) {
+                double correction = getProportionalTerm(heading, 0.007, 0);
+                robot.lf_drive.setPower(strafe - forward + correction);
+                robot.rf_drive.setPower(strafe + forward + correction);
+                robot.lr_drive.setPower(-strafe - forward + correction);
+                robot.rr_drive.setPower(-strafe + forward + correction);
+            }
+            prev = robot.rf_drive.getCurrentPosition();
+        }else{
+            while (java.lang.Math.abs(robot.rf_drive.getCurrentPosition()) > cm * ticks + prev) {
+                double correction = getProportionalTerm(heading, 0.007, 0);
+                robot.lf_drive.setPower(strafe - forward - correction);
+                robot.rf_drive.setPower(strafe + forward - correction);
+                robot.lr_drive.setPower(-strafe - forward - correction);
+                robot.rr_drive.setPower(-strafe + forward - correction);
+            }
+            prev = robot.rf_drive.getCurrentPosition();
         }
 
+        robot.lr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rr_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.lf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.rf_drive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         robot.lf_drive.setPower(0);
         robot.rf_drive.setPower(0);
         robot.lr_drive.setPower(0);

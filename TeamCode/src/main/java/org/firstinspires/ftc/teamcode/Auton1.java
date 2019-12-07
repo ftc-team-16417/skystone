@@ -16,8 +16,9 @@ public class Auton1 extends LinearOpMode {
         waitForStart();
         //code goes here
 
-        imu.goStraightIMU(1, 0,20,0.5,robot);
-        imu.rotate(90,0.5);
+        imu.goStraightIMU(1, 0,300,0.5,robot);
+        imu.goStraightIMU(1, 0,-300,-0.5,robot);
+        //imu.rotate(90,0.5);
 
     }
 }
