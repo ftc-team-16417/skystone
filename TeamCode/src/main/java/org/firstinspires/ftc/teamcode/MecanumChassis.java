@@ -5,6 +5,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
@@ -24,14 +25,25 @@ public class MecanumChassis {
     public DcMotor arm_stretch = null;
     public Servo claw_rotate = null;
     public Servo claw_open = null;
-    public Servo hook_left = null;
-    public Servo hook_right = null;
+    public Servo claw_tilt = null;
 
-    public ColorSensor sensorColor = null;
-    public DistanceSensor sensorDistance = null;
+    public ColorSensor sensorColorLF = null;
+    public DistanceSensor sensorDistanceLF = null;
+
+    public ColorSensor sensorColorLR = null;
+    public DistanceSensor sensorDistanceLR = null;
 
     public BNO055IMU imu;
 
+    public DigitalChannel lowerSwitch = null;
+    public DigitalChannel upperSwitch = null;
+
+
+    public Servo autoLeftClawL = null;
+    public Servo autoLeftClawU = null;
+
+    public Servo leftHook1 = null;
+    public Servo leftHook2 = null;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -109,6 +121,13 @@ public class MecanumChassis {
         leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        leftRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+
         intake_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm_stretch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -128,23 +147,42 @@ public class MecanumChassis {
         // Define and initialize ALL installed servos.
         claw_rotate  = hwMap.get(Servo.class, "claw_rotate");
         claw_open = hwMap.get(Servo.class, "claw_open");
-        claw_rotate.setPosition(0.5);     //middle position
+        claw_rotate.setPosition(0.4);     //middle position
         claw_open.setPosition(0.5);     //middle position
 
-        hook_left  = hwMap.get(Servo.class, "hook_left");
-        hook_right = hwMap.get(Servo.class, "hook_right");
-        hook_left.setPosition(0.25);     //middle position
-        hook_right.setPosition(0.78);     //middle position
 
-        /*
+
+
+        claw_tilt  = hwMap.get(Servo.class, "claw_tilt");
+        claw_tilt.setPosition(0.86);     //middle position
+
+
         //color sensor
         // Get a reference to our sensor object.
         // get a reference to the color sensor.
-        sensorColor = hwMap.get(ColorSensor.class, "color_sensor");
-
+        sensorColorLF = hwMap.get(ColorSensor.class, "color_sensor1");
+        sensorColorLR = hwMap.get(ColorSensor.class, "color_sensor2");
         // get a reference to the distance sensor that shares the same name.
-        sensorDistance = hwMap.get(DistanceSensor.class, "color_sensor");
-    */
+        sensorDistanceLF = hwMap.get(DistanceSensor.class, "color_sensor1");
+        sensorDistanceLR = hwMap.get(DistanceSensor.class, "color_sensor2");
+
+        // for magnetic switch sensor
+        lowerSwitch = hwMap.get(DigitalChannel.class, "lowerSwitch");
+        lowerSwitch.setMode(DigitalChannel.Mode.INPUT);
+        upperSwitch = hwMap.get(DigitalChannel.class, "upperSwitch");
+        upperSwitch.setMode(DigitalChannel.Mode.INPUT);
+
+        //for auto claw
+        autoLeftClawL = hwMap.get(Servo.class, "leftClawL");
+        autoLeftClawU = hwMap.get(Servo.class, "leftClawU");
+        autoLeftClawU.setPosition(0.55);
+        autoLeftClawL.setPosition(0.575);
+
+        //for left hook
+        leftHook1 = hwMap.get(Servo.class, "leftHook1");
+        leftHook2 = hwMap.get(Servo.class,"leftHook2");
+        leftHook1.setPosition(0.48);
+        leftHook2.setPosition(0.49);
 
     }
 

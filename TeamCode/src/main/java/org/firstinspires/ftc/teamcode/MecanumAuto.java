@@ -3,10 +3,13 @@ package org.firstinspires.ftc.teamcode;
 import android.graphics.Color;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.Func;
+import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
@@ -20,7 +23,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import java.util.Locale;
 
 
-@Autonomous(name="MecanumDrive: Auto Drive By Encoder and IMU", group="MecanumDrive")
+@Autonomous(name="Red Side Auto V1")
 //@Disabled
 
 
@@ -39,14 +42,47 @@ public class MecanumAuto extends LinearOpMode {
     MecanumAutoDrive mecanumAutoDrive = null;
 
     // hsvValues is an array that will hold the hue, saturation, and value information.
-    float hsvValues[] = {0F, 0F, 0F};
+    float hsvValuesF[] = {0F, 0F, 0F};
+    float hsvValuesR[] = {0F, 0F, 0F};
 
     // values is a reference to the hsvValues array.
-    final float values[] = hsvValues;
+    final float values[] = hsvValuesF;
 
     // sometimes it helps to multiply the raw RGB values with a scale factor
     // to amplify/attentuate the measured values.
     final double SCALE_FACTOR = 255;
+    final double LEFT_HOOK1_INI = 0.48;
+    final double LEFT_HOOK2_INI = 0.49;
+    final double LEFT_HOOK_RANGE = 0.383;
+
+
+
+    final double LEFT_CLAWU_INI = 0.55;
+    final double LEFT_CLAWL_INI = 0.575;
+    final double LEFT_CLAWU_PICK = LEFT_CLAWU_INI - 0.3 ;
+    final double LEFT_CLAWL_PICK = LEFT_CLAWL_INI - 0.34;
+    final double LEFT_CLAWU_HOLD = LEFT_CLAWU_INI + 0.05;
+    final double LEFT_CLAWL_HOLD = LEFT_CLAWL_INI -  0.1;
+    final double LEFT_CLAWU_RELEASE = LEFT_CLAWU_INI - 0.3;
+
+
+    final double DIS_TH = 30;        //hsv value
+    final double STONE_WIDTH = 0.2 - 0.04;     // 20cm = 0.2m
+    int stoneCheck = 0;
+    double diffDis = 0;
+
+    SkystoneNavigation skystoneNavigaitonThread = null;
+    VectorF translation = null;
+    Orientation rotation = null;
+
+    double CAMERA_OFFSET_Y = -1.154;   // for red side
+    double CAMERA_OFFSET_X = -1.277;
+    double OFFSET_Y = 0.21;
+    double offsetY = 0;
+    double OFFSET_X = 0;
+    double offsetX = 0;
+    double offsetAngle = 0;
+
     @Override
     public void runOpMode()  throws InterruptedException{
         /*
@@ -76,8 +112,16 @@ public class MecanumAuto extends LinearOpMode {
             idle();
         }
 
+
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
+        robot.leftHook1.setPosition(LEFT_HOOK1_INI);
+        robot.leftHook2.setPosition(LEFT_HOOK2_INI);
+
         composeTelemetry();
         telemetry.update();
+
+        skystoneNavigaitonThread = new SkystoneNavigation(robot, telemetry);
 
 
         telemetry.addData("Working Mode", "waiting for start");
@@ -87,7 +131,15 @@ public class MecanumAuto extends LinearOpMode {
 
 
         // Wait for the game to start (driver presses PLAY)
+
         waitForStart();
+        skystoneNavigaitonThread.start();
+
+ //       pickUpStone();
+ //       ftcWait(2000);
+        // dropOffStone();
+
+
         // only drive base on encoder
         /*
         //mecanumAutoDrive.encoderDrive(0.2,  1.2,  1.2, 10.0);  // S1: Forward 50cm with 5 Sec timeout
@@ -98,41 +150,228 @@ public class MecanumAuto extends LinearOpMode {
 
         // drive based on encoder + gyro 1.2m = 2 tiles
         //mecanumAutoDrive.goStraightTask(0.05, 0, 0.05, 0,5);
-        /*
-        mecanumAutoDrive.goStraightTask(1.2, 0, 1.0, 0.02, 5);
-        mecanumAutoDrive.turnRobotTask(-90,1.0,1.0, MecanumAutoDrive.TURN_METHOD.TWO_WHEEL, 5);
-        mecanumAutoDrive.goStraightTask(0.5, -90, 1.0, 0.01,5);
-        mecanumAutoDrive.goStraightTask(0.5, -90, -1.0, 0.01,5);
-        mecanumAutoDrive.turnRobotTask(0,1.0,1.0, MecanumAutoDrive.TURN_METHOD.TWO_WHEEL, 5);
-        mecanumAutoDrive.goStraightTask(1.2, 0, -1.0, 0.02, 5);
-        */
-        while(true){
-            mecanumAutoDrive.getHeadingAngle();
-            // Read the sensor
-            Color.RGBToHSV((int) (robot.sensorColor.red() * SCALE_FACTOR),
-                    (int) (robot.sensorColor.green() * SCALE_FACTOR),
-                    (int) (robot.sensorColor.blue() * SCALE_FACTOR),
-                    hsvValues);
 
-            // send the info back to driver station using telemetry function.
-            telemetry.addData("Distance (cm)",
-                    String.format(Locale.US, "%.02f", robot.sensorDistance.getDistance(DistanceUnit.CM)));
-            telemetry.addData("Alpha", robot.sensorColor.alpha());
-            telemetry.addData("Red  ", robot.sensorColor.red());
-            telemetry.addData("Green", robot.sensorColor.green());
-            telemetry.addData("Blue ", robot.sensorColor.blue());
-            telemetry.addData("Hue", hsvValues[0]);
+        //mecanumAutoDrive.goStraightTask(2.4, 0, 0.35, 0.02, 5);
+        //mecanumAutoDrive.goStraightTask(2.4, 0, -0.35, 0.02, 5);
+
+        //90 degree, power 0.5, 180 degree, power 0.4
+        //mecanumAutoDrive.turnRobotTask(90,0.5,1.0, MecanumAutoDrive.TURN_METHOD.TWO_WHEEL, 5);
+        //mecanumAutoDrive.goStraightTask(0.5, -90, 1.0, 0.01,5);
+        //mecanumAutoDrive.goStraightTask(0.5, -90, -1.0, 0.01,5);
+        //mecanumAutoDrive.turnRobotTask(0,1.0,1.0, MecanumAutoDrive.TURN_METHOD.TWO_WHEEL, 5);
+        //mecanumAutoDrive.goStraightTask(1.2, 0, -1.0, 0.02, 5);
+
+        // red side task 2 skystone deliver and placement + replace foundation + park robot
+        //0.75
+        mecanumAutoDrive.straferTask(0.83,0,-0.2,0.05,5);
+
+        try{
+            Thread.sleep(200);
+        }
+        catch (Exception e){}
+
+        stoneCheck = checkColor();
+
+        if (stoneCheck == 0) {
+            //middle stone is sky stone
+           // mecanumAutoDrive.straferTask(0.04,0,-0.05,0.05,5);
+            pickUpStone();
+        }
+        else if(stoneCheck == -1) {
+            //front one
+            mecanumAutoDrive.goStraightTask(STONE_WIDTH, 0, 0.1, 0.02, 5);
+          //  mecanumAutoDrive.straferTask(0.04,0,-0.05,0.05,5);
+            pickUpStone();
+        }
+        else {
+            //back one
+            mecanumAutoDrive.goStraightTask(STONE_WIDTH, 0, -0.1, 0.02, 5);
+          //  mecanumAutoDrive.straferTask(0.04,0,-0.05,0.05,5);
+            pickUpStone();
+        }
+        mecanumAutoDrive.straferTask(0.23,0,0.2,0.05,5);
+        mecanumAutoDrive.goStraightTask(2.2 + 0.05 + stoneCheck * STONE_WIDTH, 1, 0.35, 0.02, 5);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI - 0.2);
+        mecanumAutoDrive.straferTask(0.29,1,-0.2,0.05,5);
+        //dropOffStone
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
+        ftcWait(400);
+        mecanumAutoDrive.straferTask(0.23,0,0.2,0.05,5);
+        //reset pick up arm
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
+        //mecanumAutoDrive.goStraightTask(2.2 - 0.07 + 5 * STONE_WIDTH + stoneCheck * STONE_WIDTH, 0, -0.35, 0.02, 5);
+        mecanumAutoDrive.goStraightTask(2.68, 0, -0.35, 0.02, 5);
+
+        correctRobotPositionByCam();
+
+        if (stoneCheck == -1) {
+            if (offsetX > 0) {
+                mecanumAutoDrive.goStraightTask(offsetX, 0, -0.1, 0.02, 5);
+            }
+            if (offsetX < 0){
+                mecanumAutoDrive.goStraightTask(offsetX, 0, 0.1, 0.02, 5);
+            }
+        }
+        else if(stoneCheck == 0){
+            mecanumAutoDrive.goStraightTask(STONE_WIDTH + offsetX, 0, -0.1, 0.02, 5);
+        }
+        else {
+            mecanumAutoDrive.goStraightTask(2 * STONE_WIDTH + offsetX, 0, -0.1, 0.02, 5);
+        }
+
+        mecanumAutoDrive.straferTask(OFFSET_Y + offsetY,0,-0.2,0.05,5);
+
+        pickUpStone();
+        mecanumAutoDrive.straferTask(OFFSET_Y + 0.02,0,0.2,0.05,5);
+
+        mecanumAutoDrive.goStraightTask(2.50 + (1 + stoneCheck) * STONE_WIDTH, 2, 0.35, 0.02, 5);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI - 0.2);
+        mecanumAutoDrive.straferTask(0.29,1,-0.2,0.05,5);
+        //drop off stone
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
+        ftcWait(400);
+        //hookdown first
+        robot.leftHook1.setPosition(LEFT_HOOK1_INI + LEFT_HOOK_RANGE);
+        robot.leftHook2.setPosition(LEFT_HOOK2_INI - LEFT_HOOK_RANGE);
+        mecanumAutoDrive.driveRobot(-0.15,0.15,0.15,-0.15);
+        ftcWait(400);
+        //reset pick up arm
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
+
+        mecanumAutoDrive.driveRobot(-0.3,0.3,0.3,-0.3);
+
+        mecanumAutoDrive.driveRobot(0.01,-0.1,-0.1,0.01);
+        ftcWait(400);
+        mecanumAutoDrive.driveRobot(0.05,-0.3,-0.3,0.05);
+        ftcWait(1600);
+        mecanumAutoDrive.turnRobotTask(-90,0.5,10.0, MecanumAutoDrive.TURN_METHOD.TWO_WHEEL, 5);
+
+/*
+        mecanumAutoDrive.straferTask(0.24,0,-0.2,0.05,5);
+        pickUpStone();
+        mecanumAutoDrive.straferTask(0.24,0,0.2,0.05,5);
+        mecanumAutoDrive.goStraightTask(2.2 - 0.2 + 4 * STONE_WIDTH + stoneCheck * STONE_WIDTH, 2, 0.35, 0.02, 5);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI - 0.2);
+        mecanumAutoDrive.straferTask(0.30,1,-0.2,0.05,5);
+        //drop off stone
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
+        ftcWait(400);
+        //hookdown first
+        robot.leftHook1.setPosition(LEFT_HOOK1_INI + LEFT_HOOK_RANGE);
+        robot.leftHook2.setPosition(LEFT_HOOK2_INI - LEFT_HOOK_RANGE);
+        mecanumAutoDrive.driveRobot(-0.15,0.15,0.15,-0.15);
+        ftcWait(400);
+        //reset pick up arm
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
+
+        mecanumAutoDrive.driveRobot(-0.3,0.3,0.3,-0.3);
+
+        mecanumAutoDrive.driveRobot(0.01,-0.1,-0.1,0.01);
+        ftcWait(400);
+        mecanumAutoDrive.driveRobot(0.05,-0.3,-0.3,0.05);
+        ftcWait(1600);
+        mecanumAutoDrive.turnRobotTask(-90,0.5,10.0, MecanumAutoDrive.TURN_METHOD.TWO_WHEEL, 5);
+*/
 
 
-            telemetry.addData("HeadingF=","%.1f",mecanumAutoDrive.getHeadingAngle());
+        //mecanumAutoDrive.driveRobot(0.3,0.3,0.3,0.3);
+        //ftcWait(1000);
+        mecanumAutoDrive.goStraightTask(1.10, -90, 0.25, 0.02, 5);
+
+        leftHookUp();
+        mecanumAutoDrive.driveRobot(-0.3,0.3,0.3,-0.3);
+        ftcWait(600);
+        mecanumAutoDrive.stopRobot();
+        mecanumAutoDrive.goStraightTask(0.58, -90, -0.35, 0.02, 5);
+        mecanumAutoDrive.straferTask(0.88,-90,0.2,0.05,5);
 
 
-            telemetry.update();
-           idle();
+        while(true) {
+            if (skystoneNavigaitonThread.targetVisible){
+                correctRobotPositionByCam();
+                try {
+/*
+                    if (skystoneNavigaitonThread.targetName == "Front Perimeter 1"){
+                        telemetry.addData("Visible Target", skystoneNavigaitonThread.targetName);
+                    }
+                    if (skystoneNavigaitonThread.getPosition) {
 
+                        telemetry.addData("Pos (mm)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                                skystoneNavigaitonThread.translation.get(0), skystoneNavigaitonThread.translation.get(1), skystoneNavigaitonThread.translation.get(2));
+                    }
+
+
+                    if (skystoneNavigaitonThread.getOrientation) {
+
+                        telemetry.addData("Rot (deg)", "{Roll, Pitch, Heading} = %.0f, %.0f, %.0f", skystoneNavigaitonThread.rotation.firstAngle, skystoneNavigaitonThread.rotation.secondAngle, skystoneNavigaitonThread.rotation.thirdAngle);
+                    }
+*/
+                    telemetry.addData( "IMU angle ", " %.0f", mecanumAutoDrive.getHeadingAngle() );
+                 //   telemetry.addData( "Offset Y ", "%.0f", offsetY);
+                //   telemetry.addData( "Offset Angle ","%.0f",offsetAngle );
+
+
+                }catch (Exception e){
+                    telemetry.addData( "Sth wrong", "wong" );
+                }
+                telemetry.update();
+            }
 
         }
 
+
+/*
+        while(true){
+            mecanumAutoDrive.getHeadingAngle();
+
+            // Read the sensor
+            Color.RGBToHSV((int) (robot.sensorColorLF.red() * SCALE_FACTOR),
+                    (int) (robot.sensorColorLF.green() * SCALE_FACTOR),
+                    (int) (robot.sensorColorLF.blue() * SCALE_FACTOR),
+                    hsvValuesF);
+
+            Color.RGBToHSV((int) (robot.sensorColorLR.red() * SCALE_FACTOR),
+                    (int) (robot.sensorColorLR.green() * SCALE_FACTOR),
+                    (int) (robot.sensorColorLR.blue() * SCALE_FACTOR),
+                    hsvValuesR);
+
+            // send the info back to driver station using telemetry function.
+            telemetry.addData("Distance1 (cm)",
+                    String.format(Locale.US, "%.02f", robot.sensorDistanceLF.getDistance(DistanceUnit.CM)));
+            telemetry.addData("Distance2 (cm)",
+                    String.format(Locale.US, "%.02f", robot.sensorDistanceLR.getDistance(DistanceUnit.CM)));
+
+            telemetry.addData("Stone Position",
+                    String.format(Locale.US, "%d", stoneCheck));
+
+            telemetry.addData("Diff Dis",
+                    String.format(Locale.US, "%.02f", diffDis));
+
+            //telemetry.addData("Alpha", robot.sensorColorLF.alpha());
+            //telemetry.addData("Red  ", robot.sensorColorLF.red());
+            //telemetry.addData("Green", robot.sensorColorLF.green());
+            //telemetry.addData("Blue ", robot.sensorColorLF.blue());
+            //telemetry.addData("HF", hsvValuesF[0]);
+            //telemetry.addData("SF", hsvValuesF[1]);
+            //telemetry.addData("VF", hsvValuesF[2]);
+
+            //telemetry.addData("HR", hsvValuesR[0]);
+            //telemetry.addData("SR", hsvValuesR[1]);
+            //telemetry.addData("VR", hsvValuesR[2]);
+
+
+            //telemetry.addData("HeadingF=","%.1f",mecanumAutoDrive.getHeadingAngle());
+
+
+            //telemetry.update();
+           //idle();
+
+
+        }
+*/
 /*
         telemetry.addData("Path0",  "Starting at %7d :%7d:%7d:%7d",
                 robot.leftFrontDrive.getCurrentPosition(),
@@ -236,6 +475,156 @@ public class MecanumAuto extends LinearOpMode {
 
     String formatDegrees(double degrees){
         return String.format(Locale.getDefault(), "%.1f", AngleUnit.DEGREES.normalize(degrees));
+    }
+
+
+    private int checkColor(){
+        Color.RGBToHSV((int) (robot.sensorColorLF.red() * SCALE_FACTOR),
+                (int) (robot.sensorColorLF.green() * SCALE_FACTOR),
+                (int) (robot.sensorColorLF.blue() * SCALE_FACTOR),
+                hsvValuesF);
+
+        Color.RGBToHSV((int) (robot.sensorColorLR.red() * SCALE_FACTOR),
+                (int) (robot.sensorColorLR.green() * SCALE_FACTOR),
+                (int) (robot.sensorColorLR.blue() * SCALE_FACTOR),
+                hsvValuesR);
+
+        diffDis = Math.abs(hsvValuesF[0]- hsvValuesR[0]);
+        if ( diffDis < DIS_TH){
+            return 1;  //back one
+        }
+        else{
+            if (hsvValuesR[0] < hsvValuesF[0]){
+                return -1;   // front
+            }
+            else{
+                return 0;     //middle
+            }
+        }
+
+
+    }
+
+    private void pickUpStone(){
+        try
+        {
+
+                robot.autoLeftClawL.setPosition(LEFT_CLAWL_PICK);
+                robot.autoLeftClawU.setPosition(LEFT_CLAWU_PICK);
+                Thread.sleep(500);
+                robot.autoLeftClawU.setPosition(LEFT_CLAWU_HOLD);
+                Thread.sleep(700);
+                robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD);
+                Thread.sleep(400);
+                //Thread.yield();
+
+        }
+        // interrupted means time to shutdown. note we can stop by detecting isInterrupted = true
+        // or by the interrupted exception thrown from the sleep function.
+        //catch (InterruptedException e) {goStraightEndFlag = true;}
+        // an error occurred in the run loop.
+        catch (Exception e) {}
+    }
+
+    private void dropOffStone(){
+        try
+        {
+
+            robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
+            Thread.sleep(500);
+            robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
+            Thread.sleep(300);
+            robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
+            Thread.sleep(400);
+            Thread.yield();
+
+        }
+        // interrupted means time to shutdown. note we can stop by detecting isInterrupted = true
+        // or by the interrupted exception thrown from the sleep function.
+        //catch (InterruptedException e) {goStraightEndFlag = true;}
+        // an error occurred in the run loop.
+        catch (Exception e) {}
+    }
+
+    private void leftHookDown(){
+        robot.leftHook1.setPosition(LEFT_HOOK1_INI + LEFT_HOOK_RANGE);
+        robot.leftHook2.setPosition(LEFT_HOOK2_INI - LEFT_HOOK_RANGE);
+        try {
+            Thread.sleep(500);
+        }
+        catch(Exception e){
+            robot.leftHook1.setPosition(LEFT_HOOK1_INI);
+            robot.leftHook2.setPosition(LEFT_HOOK2_INI);
+        }
+
+    }
+
+    private void leftHookUp(){
+        robot.leftHook1.setPosition(LEFT_HOOK1_INI);
+        robot.leftHook2.setPosition(LEFT_HOOK2_INI);
+        try {
+            Thread.sleep(200);
+        }
+        catch(Exception e){
+            robot.leftHook1.setPosition(LEFT_HOOK1_INI);
+            robot.leftHook2.setPosition(LEFT_HOOK2_INI);
+        }
+    }
+
+    private void ftcWait(long ms){
+        try {
+            Thread.sleep(ms);
+        }
+        catch(Exception e){
+
+        }
+    }
+
+    private void correctRobotPositionByCam(){
+        offsetY = 0;
+        double angle = 0;
+        boolean getData = false;
+        int tryCnt = 0;
+        while(!getData){
+            tryCnt ++;
+            if (tryCnt > 4){
+                getData = true;     //give up, use default offset value
+                offsetY = 0;
+                offsetX = 0;
+                offsetAngle = 0;
+            }
+            if (skystoneNavigaitonThread.targetVisible) {
+                try {
+                    if (skystoneNavigaitonThread.targetName == "Front Perimeter 1") {
+                        if (skystoneNavigaitonThread.getPosition) {
+                            telemetry.addData("Pos1 (mm)", "{X, Y, Z} = %.1f, %.1f, %.1f",
+                                    skystoneNavigaitonThread.translation.get(0), skystoneNavigaitonThread.translation.get(1), skystoneNavigaitonThread.translation.get(2));
+                            offsetY = - (skystoneNavigaitonThread.translation.get(1)/1000.0f - CAMERA_OFFSET_Y);
+
+                            offsetX =  (skystoneNavigaitonThread.translation.get(0)/1000.0f - CAMERA_OFFSET_X);
+                            telemetry.addData("X offset", "%.3f", offsetX);
+                            telemetry.addData("Y offset", "%.3f", offsetY);
+                            getData = true;
+                        }
+
+
+                        if (skystoneNavigaitonThread.getOrientation) {
+                            angle = skystoneNavigaitonThread.rotation.thirdAngle;
+                            if (angle > 0) offsetAngle = angle - 180;
+                            if (angle < 0) offsetAngle = angle + 180;
+
+                        }
+                        telemetry.update();
+                    }
+                } catch (Exception e) {
+                    offsetAngle = 0;
+                    offsetY = 0;
+                    offsetX = 0;
+
+                }
+            }
+
+        }
     }
 
 }
