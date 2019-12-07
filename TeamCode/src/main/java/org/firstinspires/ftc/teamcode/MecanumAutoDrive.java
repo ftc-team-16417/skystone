@@ -17,7 +17,7 @@ import static java.lang.Math.abs;
 import static java.lang.Math.signum;
 
 
-public class MecanumAutoDrive {
+public class wMecanumAutoDrive {
     static final double     COUNTS_PER_MOTOR_REV    = 383.6 ;    // eg: matrix motor + gobilda gearbox
     static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // mecanum drive chassis
     static final double     WHEEL_DIAMETER_M   = 0.10 ;     // For figuring circumference
