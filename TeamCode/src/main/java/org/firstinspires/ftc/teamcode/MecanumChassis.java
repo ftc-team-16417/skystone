@@ -33,6 +33,12 @@ public class MecanumChassis {
     public ColorSensor sensorColorLR = null;
     public DistanceSensor sensorDistanceLR = null;
 
+    public ColorSensor sensorColorRF = null;
+    public DistanceSensor sensorDistanceRF = null;
+
+    public ColorSensor sensorColorRR = null;
+    public DistanceSensor sensorDistanceRR = null;
+
     public BNO055IMU imu;
 
     public DigitalChannel lowerSwitch = null;
@@ -41,9 +47,15 @@ public class MecanumChassis {
 
     public Servo autoLeftClawL = null;
     public Servo autoLeftClawU = null;
+    public Servo autoRightClawL = null;
+    public Servo autoRightClawU = null;
 
     public Servo leftHook1 = null;
     public Servo leftHook2 = null;
+    public Servo rightHook1 = null;
+    public Servo rightHook2 = null;
+
+    public Servo capStone = null;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -160,29 +172,51 @@ public class MecanumChassis {
         //color sensor
         // Get a reference to our sensor object.
         // get a reference to the color sensor.
-        sensorColorLF = hwMap.get(ColorSensor.class, "color_sensor1");
-        sensorColorLR = hwMap.get(ColorSensor.class, "color_sensor2");
+        sensorColorLF = hwMap.get(ColorSensor.class, "color_sensorLF");
+        sensorColorLR = hwMap.get(ColorSensor.class, "color_sensorLR");
         // get a reference to the distance sensor that shares the same name.
-        sensorDistanceLF = hwMap.get(DistanceSensor.class, "color_sensor1");
-        sensorDistanceLR = hwMap.get(DistanceSensor.class, "color_sensor2");
+        sensorDistanceLF = hwMap.get(DistanceSensor.class, "color_sensorLF");
+        sensorDistanceLR = hwMap.get(DistanceSensor.class, "color_sensorLR");
+
+
+        sensorColorRF = hwMap.get(ColorSensor.class, "color_sensorRF");
+        sensorColorRR = hwMap.get(ColorSensor.class, "color_sensorRR");
+        // get a reference to the distance sensor that shares the same name.
+        sensorDistanceRF = hwMap.get(DistanceSensor.class, "color_sensorRF");
+        sensorDistanceRR = hwMap.get(DistanceSensor.class, "color_sensorRR");
 
         // for magnetic switch sensor
         lowerSwitch = hwMap.get(DigitalChannel.class, "lowerSwitch");
         lowerSwitch.setMode(DigitalChannel.Mode.INPUT);
-        upperSwitch = hwMap.get(DigitalChannel.class, "upperSwitch");
-        upperSwitch.setMode(DigitalChannel.Mode.INPUT);
+        //upperSwitch = hwMap.get(DigitalChannel.class, "upperSwitch");
+        //upperSwitch.setMode(DigitalChannel.Mode.INPUT);
 
-        //for auto claw
+        //for auto left claw
         autoLeftClawL = hwMap.get(Servo.class, "leftClawL");
         autoLeftClawU = hwMap.get(Servo.class, "leftClawU");
         autoLeftClawU.setPosition(0.55);
         autoLeftClawL.setPosition(0.575);
 
         //for left hook
-        leftHook1 = hwMap.get(Servo.class, "leftHook1");
-        leftHook2 = hwMap.get(Servo.class,"leftHook2");
+        leftHook1 = hwMap.get(Servo.class, "leftHookF");
+        leftHook2 = hwMap.get(Servo.class,"leftHookR");
         leftHook1.setPosition(0.48);
         leftHook2.setPosition(0.49);
+
+        //for auto right claw
+        autoRightClawL = hwMap.get(Servo.class, "rightClawL");
+        autoRightClawU = hwMap.get(Servo.class, "rightClawU");
+        autoRightClawU.setPosition(0.44);
+        autoRightClawL.setPosition(0.47);
+
+        //for left hook
+        rightHook1 = hwMap.get(Servo.class, "rightHookF");
+        rightHook2 = hwMap.get(Servo.class,"rightHookR");
+        rightHook1.setPosition(0.55);
+        rightHook2.setPosition(0.472);
+
+        capStone = hwMap.get(Servo.class, "capstone_servo");
+        capStone.setPosition(0.55);
 
     }
 

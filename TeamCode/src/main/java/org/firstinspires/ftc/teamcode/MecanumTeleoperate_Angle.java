@@ -22,7 +22,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
     MecanumChassis robot   = new MecanumChassis();   // Use a Mecanum chassis's hardware
 
 
-    double gearLevel = 1.0;
+    double gearLevel = 0.3;
     final double CLAW_ROTATION_INI = 0.4;
     double rotationServoPos = CLAW_ROTATION_INI;
     double rotationServoPosStep = 0.2;
@@ -30,7 +30,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
 
     int arm_tilt_Pos = 0;
 
-    final int ARM_TILT_POS_LM = 3460;
+    final int ARM_TILT_POS_LM = 3300;
 
     double arm_tilt_angle = 0;
     final double ARM_TILT_START = 77.0;               // reset position, need measure, down vertical is 0
@@ -41,7 +41,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
 
     int arm_stretch_Pos = 0;
 
-    final int ARM_STRETCH_POS_LM = -1350;
+    final int ARM_STRETCH_POS_LM = -1360;
     final double ARM_STRETCH_RES = 1 / (ARM_STRETCH_POS_LM);
     double arm_stretch_len = 0;
     double arm_stretch_power = 0;
@@ -124,7 +124,10 @@ public class MecanumTeleoperate_Angle extends OpMode {
 
     final double LEFT_HOOK1_INI = 0.48;
     final double LEFT_HOOK2_INI = 0.49;
-    final double LEFT_HOOK_RANGE = 0.383;
+    final double LEFT_HOOK_RANGE = 0.393;
+    final double RIGHT_HOOK1_INI = 0.55;
+    final double RIGHT_HOOK2_INI = 0.472;
+    final double RIGHT_HOOK_RANGE = 0.403;
     boolean blnLeftHookDown = false;       // initial at up position
     boolean blnBackBtnRelease = true;
     int backBtnDelayCnt = 0;
@@ -137,9 +140,22 @@ public class MecanumTeleoperate_Angle extends OpMode {
     final double LEFT_CLAWU_HOLD = LEFT_CLAWU_INI + 0.1;
     final double LEFT_CLAWL_HOLD = LEFT_CLAWL_INI -  0.1;
     final double LEFT_CLAWU_RELEASE = LEFT_CLAWU_INI - 0.3;
+
+    final double RIGHT_CLAWU_INI = 0.44;
+    final double RIGHT_CLAWL_INI = 0.47;
+    final double RIGHT_CLAWU_PICK = RIGHT_CLAWU_INI + 0.2 ;
+    final double RIGHT_CLAWL_PICK = RIGHT_CLAWL_INI + 0.34;
+    final double RIGHT_CLAWU_HOLD = RIGHT_CLAWU_INI - 0.05;
+    final double RIGHT_CLAWL_HOLD = RIGHT_CLAWL_INI +  0.05;
+    final double RIGHT_CLAWU_RELEASE = RIGHT_CLAWU_INI + 0.13;
+
+    final double CAPSTONE_INI = 0.55;
+    final double CAPSTONE_PUTDOWN = 0.35;
+    boolean blnPutDownCapStone = false;
+    PutDownCapStoneThread putDownCapStoneThread = null;
+
     boolean blnLeftClawInCtrl = false;
-    AutoLeftClawPickUpThread autoLeftClawPickUpThread = null;
-    AutoLeftClawDropThread autoLeftClawDropThread = null;
+
 
     boolean blnStartBtnRelease = true;
     int startBtnDelayCnt = 0;
@@ -186,7 +202,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
             System.out.println("got interrupted!");
         }
         robot.arm_tilt.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-       // robot.arm_stretch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.arm_stretch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         robot.arm_tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         arm_tilt_angle = ARM_TILT_START;
@@ -194,22 +210,20 @@ public class MecanumTeleoperate_Angle extends OpMode {
         robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
         robot.arm_tilt.setPower(0.3);
 
-        /*
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                // Actions to do after 10 seconds
-                handler.removeCallbacksAndMessages(null);
-            }
-        }, 10000);
-        */
+
 
         robot.leftHook2.setPosition(LEFT_HOOK2_INI);
         robot.leftHook1.setPosition(LEFT_HOOK1_INI);
+        robot.rightHook2.setPosition(RIGHT_HOOK2_INI);
+        robot.rightHook1.setPosition(RIGHT_HOOK1_INI);
         blnLeftHookDown = false;
 
-       // robot.autoLeftClawL.setPosition(0.5);
-        //robot.autoLeftClawU.setPosition(0.6);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
+        robot.autoRightClawL.setPosition(RIGHT_CLAWL_INI);
+        robot.autoRightClawU.setPosition(RIGHT_CLAWU_INI);
+
+        robot.capStone.setPosition(CAPSTONE_INI);
 
         // Send telemetry message to indicate successful Encoder reset
         telemetry.addData("encoder",  "Starting at %7d :%7d:%7d:%7d",
@@ -298,21 +312,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
         robot.rightRearDrive.setPower(rightRearPower);
 
         updateArmPosition();
-/*
-        int test1 = 1;
-        int test2 = 1;
-        if (robot.lowerSwitch.getState()){
-            test1 = 1;
-        }
-        else{
-            test1 = 0;
-        }
-        if (robot.upperSwitch.getState()){
-            test2 = 1;
-        }
-        else{
-            test2 = 0;
-        }*/
+
         // Show the elapsed game time and wheel power.
         telemetry.addData("Status", "Run Time: " + runtime.toString());
         //display joystick power
@@ -376,26 +376,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
                 aBtnDelayCnt = 0;
                 //move back to pick up read position
                 arm2PickUpReadyPos();
-                /*
-                arm_tilt_Pos_index --;
-                if (arm_tilt_Pos_index <= 1){
-                    arm_tilt_Pos_index = 1;
-                }
-                arm_tilt_Pos = arm_tilt_Pos_Array[arm_tilt_Pos_index];
-                if (arm_tilt_Pos_index < 4){
-                    arm_stretch_Pos = robot.arm_stretch.getCurrentPosition();
-                    if (arm_stretch_Pos <= STRETCH_RESET_POS){
-                        arm_stretch_Pos = STRETCH_RESET_POS;
-                        robot.arm_stretch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        robot.arm_stretch.setTargetPosition(arm_stretch_Pos);
-                        robot.arm_stretch.setPower(arm_stretch_power);
-                        stretchInCtrlTask = true;
-                    }
-                }
-                robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
-                robot.arm_tilt.setPower(arm_tilt_power);
-                armInCtrl = true;
-                */
+
             }
 
         }else {
@@ -404,17 +385,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
                 aBtnDelayCnt = 10;
                 aBtnReleaseFlag = true;
             }
-            /*
-            if (Math.abs(robot.arm_stretch.getCurrentPosition() - arm_stretch_Pos) < 10) {
-                if (stretchInCtrlTask) {
-                    stretchInCtrlTask = false;
-                }
-            }
-            if (Math.abs(robot.arm_tilt.getCurrentPosition() - arm_tilt_Pos) < 10) {
-                if (armInCtrl) {
-                    armInCtrl = false;
-                }
-            }*/
+
             if (!armInCtrlTask){
                 if (arm2PickUPReadyThread != null){
                     arm2PickUPReadyThread.interrupt();
@@ -427,27 +398,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
         if (gamepad1.y){
             if (yBtnReleaseFlag){
                 yBtnReleaseFlag = false;
-                yBtnDelayCnt = 0;
-                /*
-                arm_tilt_Pos_index ++;
-                if (arm_tilt_Pos_index >= arm_tilt_Pos_Array.length){
-                    arm_tilt_Pos_index = arm_tilt_Pos_Array.length - 1;
-                }
-                arm_tilt_Pos = arm_tilt_Pos_Array[arm_tilt_Pos_index];
-                if (arm_tilt_Pos_index > 4){
-                    arm_stretch_Pos = robot.arm_stretch.getCurrentPosition();
-                    if (arm_stretch_Pos >= STRETCH_MIDDLE_POS){
-                        arm_stretch_Pos = STRETCH_MIDDLE_POS;
-                        robot.arm_stretch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        robot.arm_stretch.setTargetPosition(arm_stretch_Pos);
-                        robot.arm_stretch.setPower(arm_stretch_power);
-                        stretchInCtrlTask = true;
-                    }
-                }
-                robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
-                robot.arm_tilt.setPower(arm_tilt_power);
-                armInCtrl = true;
-                */
+
                 arm2Level7Pos();
             }
 
@@ -457,17 +408,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
                 yBtnDelayCnt = 10;
                 yBtnReleaseFlag = true;
             }
-            /*
-            if (Math.abs(robot.arm_stretch.getCurrentPosition() - arm_stretch_Pos) < 10){
-                if (stretchInCtrlTask){
-                    stretchInCtrlTask = false;
-                }
-            }
-            if (Math.abs(robot.arm_tilt.getCurrentPosition() - arm_tilt_Pos) < 10){
-                if (armInCtrl){
-                    armInCtrl = false;
-                }
-            }*/
+
             if (!armInCtrlTask){
                 if (arm2Level7PosThread != null){
                     arm2Level7PosThread.interrupt();
@@ -534,11 +475,15 @@ public class MecanumTeleoperate_Angle extends OpMode {
                 if (!blnLeftHookDown){
                     robot.leftHook1.setPosition(LEFT_HOOK1_INI + LEFT_HOOK_RANGE);
                     robot.leftHook2.setPosition(LEFT_HOOK2_INI - LEFT_HOOK_RANGE);
+                    robot.rightHook1.setPosition(RIGHT_HOOK1_INI - RIGHT_HOOK_RANGE);
+                    robot.rightHook2.setPosition(RIGHT_HOOK2_INI + RIGHT_HOOK_RANGE);
                     blnLeftHookDown = true;
                 }else {
                     blnLeftHookDown = false;
                     robot.leftHook1.setPosition(LEFT_HOOK1_INI);
                     robot.leftHook2.setPosition(LEFT_HOOK2_INI);
+                    robot.rightHook1.setPosition(RIGHT_HOOK1_INI);
+                    robot.rightHook2.setPosition(RIGHT_HOOK2_INI);
                 }
             }
         }
@@ -549,8 +494,10 @@ public class MecanumTeleoperate_Angle extends OpMode {
                 blnBackBtnRelease = true;
             }
         }
-
+// for gear change, not used now
+        /*
         if (gamepad1.start){
+
             if (blnStartBtnRelease){
                 blnStartBtnRelease = false;
                 if (gearLevel == 0.3){
@@ -561,26 +508,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
                 }
             }
             startBtnDelayCnt = 0;
-/*
-            startBtnDelayCnt = 0;
-            if (blnStartBtnRelease){
-                blnStartBtnRelease = true;
-                if (!blnHoldStone){
-                    autoLeftClawPickUp();
-                    blnHoldStone = true;
-                }
-                else{
-                    autoLeftClawDropOff();
-                    blnHoldStone = false;
-                }
-            }
-            else{
-                startBtnDelayCnt ++;
-                if (startBtnDelayCnt > 10){
-                    startBtnDelayCnt = 10;
-                    blnStartBtnRelease = true;
-                }
-            }*/
+
         }
         else{
             startBtnDelayCnt ++;
@@ -588,79 +516,94 @@ public class MecanumTeleoperate_Angle extends OpMode {
                 startBtnDelayCnt = 10;
                 blnStartBtnRelease = true;
             }
+
+        }
+        */
+
+ // for put down cap stone
+        if (gamepad1.start){
+
+            if (blnStartBtnRelease){
+                blnStartBtnRelease = false;
+                if (!blnPutDownCapStone){
+                    putDownCapStone();
+                }
+            }
+            startBtnDelayCnt = 0;
+
+        }
+        else{
+            startBtnDelayCnt ++;
+            if (startBtnDelayCnt > 10){
+                startBtnDelayCnt = 10;
+                blnStartBtnRelease = true;
+            }
+
         }
 
 
         if ((!armInCtrlTask) && (!armInCtrl)) {
 
             if (gamepad1.right_bumper) {
-                //for arm tilt up
-                robot.arm_tilt.setTargetPosition(ARM_TILT_POS_LM);
-                robot.arm_tilt.setPower(arm_tilt_power);
+                if (robot.arm_tilt.getCurrentPosition() < ARM_TILT_POS_LM){
+                    if (robot.arm_tilt.getMode() != DcMotor.RunMode.RUN_USING_ENCODER){
+                        robot.arm_tilt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    }
+                    robot.arm_tilt.setPower(arm_tilt_power);
+
+                }
 
             } else if (gamepad1.right_trigger > 0) {
+                if(robot.arm_tilt.getCurrentPosition() > 5){
+                    if (robot.arm_tilt.getMode() != DcMotor.RunMode.RUN_USING_ENCODER){
+                        robot.arm_tilt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    }
+                    robot.arm_tilt.setPower(-arm_tilt_power);
+                }
 
-                robot.arm_tilt.setTargetPosition(0);
-                robot.arm_tilt.setPower(arm_tilt_power);
+
 
             } else {
+                if (robot.arm_tilt.getMode() != DcMotor.RunMode.RUN_USING_ENCODER){
+                    robot.arm_tilt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                }
+                robot.arm_tilt.setPower(0);
 
-                robot.arm_tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                arm_tilt_Pos = robot.arm_tilt.getCurrentPosition();
-                if (arm_tilt_Pos < 0) arm_tilt_Pos = 0;
-                if (arm_tilt_Pos > ARM_TILT_POS_LM) arm_tilt_Pos = ARM_TILT_POS_LM;
-                robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
-                robot.arm_tilt.setPower(arm_tilt_power);
+
             }
         }
 
         //arm stretch
         if (!stretchInCtrlTask) {
             if (gamepad1.dpad_up) {
-                robot.arm_stretch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.arm_stretch.setTargetPosition(ARM_STRETCH_POS_LM);
-                robot.arm_stretch.setPower(arm_stretch_power);
-                /*
-                robot.arm_stretch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.arm_stretch.setPower(-arm_stretch_power);
-
-                if (robot.upperSwitch.getState()) {
+                if (robot.arm_stretch.getMode() != DcMotor.RunMode.RUN_USING_ENCODER){
+                    robot.arm_stretch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                }
+                if (robot.arm_stretch.getCurrentPosition() > ARM_STRETCH_POS_LM){
                     robot.arm_stretch.setPower(-arm_stretch_power);
-                }else{
-                    arm_stretch_Pos = robot.arm_stretch.getCurrentPosition();
-                    if (robot.arm_stretch.getMode() != DcMotor.RunMode.RUN_TO_POSITION){
-                        robot.arm_stretch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    }
+                }
+                else{
+                    robot.arm_stretch.setPower(0);
+                }
 
-                    robot.arm_stretch.setTargetPosition(arm_stretch_Pos);
-                    robot.arm_stretch.setPower(arm_stretch_power);
-                }*/
+
 
             } else if (gamepad1.dpad_down) {
 
                 if (robot.lowerSwitch.getState()) {
                     robot.arm_stretch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    robot.arm_stretch.setPower(arm_stretch_power);
+                    robot.arm_stretch.setPower(0.4);
                 } else {
 
+                    robot.arm_stretch.setPower(0);
                     robot.arm_stretch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    if (robot.arm_stretch.getMode() != DcMotor.RunMode.RUN_TO_POSITION){
-                        robot.arm_stretch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    }
-                    robot.arm_stretch.setTargetPosition(0);
-                    robot.arm_stretch.setPower(arm_stretch_power);
 
                 }
 
             } else {
                 //hold current position
-                arm_stretch_Pos = robot.arm_stretch.getCurrentPosition();
-                if (robot.arm_stretch.getMode() != DcMotor.RunMode.RUN_TO_POSITION) {
-                    robot.arm_stretch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                }
+                robot.arm_stretch.setPower(0);
 
-                robot.arm_stretch.setTargetPosition(arm_stretch_Pos);
-                robot.arm_stretch.setPower(arm_stretch_power);
             }
         }
 
@@ -756,6 +699,9 @@ public class MecanumTeleoperate_Angle extends OpMode {
                 while ((!isInterrupted()) && (armInCtrlTask))
                 {
 
+                    if (robot.arm_tilt.getMode() != DcMotor.RunMode.RUN_TO_POSITION){
+                        robot.arm_tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    }
                     robot.claw_open.setPosition(CLAW_OPEN_POS);
                     clawOpenFlag = true;
                     Thread.sleep(200);
@@ -827,6 +773,12 @@ public class MecanumTeleoperate_Angle extends OpMode {
             {
                 while ((!isInterrupted()) && (armInCtrlTask))
                 {
+                    if (robot.arm_tilt.getMode() != DcMotor.RunMode.RUN_TO_POSITION){
+                        robot.arm_tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    }
+                    if (robot.arm_stretch.getMode() != DcMotor.RunMode.RUN_TO_POSITION){
+                        robot.arm_stretch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    }
                     robot.claw_rotate.setPosition(0);
                     robot.claw_open.setPosition(CLAW_OPEN_POS);
                     ftcWait(400);
@@ -845,7 +797,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
                     arm_stretch_Pos = STRETCH_RESET_POS;
                     robot.arm_stretch.setTargetPosition(STRETCH_RESET_POS);
                     robot.arm_stretch.setPower(1.0);
-                    arm_tilt_Pos = ARM_PICK_READY_POS;
+                    arm_tilt_Pos = ARM_PICKUP_POS;
                     robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
                     robot.arm_tilt.setPower(1.0);
                     while(Math.abs(robot.arm_tilt.getCurrentPosition() - arm_tilt_Pos) > 50){
@@ -855,6 +807,13 @@ public class MecanumTeleoperate_Angle extends OpMode {
                     robot.claw_rotate.setPosition(CLAW_ROTATION_INI);
                     robot.claw_open.setPosition(CLAW_OPEN_POS);
                     clawOpenFlag = true;
+                    arm_tilt_Pos = ARM_PICK_READY_POS;
+                    robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
+                    robot.arm_tilt.setPower(0.5);
+                    while(Math.abs(robot.arm_tilt.getCurrentPosition() - arm_tilt_Pos) > 30){
+
+                        Thread.sleep(20);
+                    }
                     armInCtrlTask = false;
                     stretchInCtrlTask = false;
                     Thread.yield();
@@ -905,24 +864,16 @@ public class MecanumTeleoperate_Angle extends OpMode {
             {
                 while ((!isInterrupted()) && (armInCtrlTask))
                 {
-
+                    if (robot.arm_tilt.getMode() != DcMotor.RunMode.RUN_TO_POSITION){
+                        robot.arm_tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    }
+                    if (robot.arm_stretch.getMode() != DcMotor.RunMode.RUN_TO_POSITION){
+                        robot.arm_stretch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    }
                     robot.claw_open.setPosition(CLAW_CLOSE_POS);
                     clawOpenFlag = false;
                     robot.claw_rotate.setPosition(0);
-                    /*
-                    arm_tilt_Pos = ARM_PICKUP_MIDDLE_POS3;
-                    robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
-                    robot.arm_tilt.setPower(0.7);
-                    Thread.sleep(1000);
 
-                    robot.arm_stretch.setTargetPosition(STRETCH_MIDDLE_POS);
-                    robot.arm_stretch.setPower(0.7);
-                    Thread.sleep(1000);
-
-                    arm_tilt_Pos = ARM_PICKUP_MIDDLE_POS3;
-                    robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
-                    robot.arm_tilt.setPower(0.5);
-                    Thread.sleep(1000);*/
                     arm_tilt_Pos = ARM_DROP_LEVEL7;
                     robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
                     robot.arm_tilt.setPower(0.5);
@@ -958,32 +909,23 @@ public class MecanumTeleoperate_Angle extends OpMode {
 
 
     }
-
-    private void autoLeftClawDropOff(){
-        blnLeftClawInCtrl = true;
-        autoLeftClawDropThread = new AutoLeftClawDropThread();
-        autoLeftClawDropThread.start();
-        while(blnLeftClawInCtrl){
-            try {
-                Thread.sleep(200);
-            }
-            catch (Exception e) {blnLeftClawInCtrl = false;}
-
+    private void putDownCapStone(){
+        if (putDownCapStoneThread != null){
+            putDownCapStoneThread.interrupt();
+            putDownCapStoneThread = null;
         }
-        if (autoLeftClawDropThread != null){
-            autoLeftClawDropThread.interrupt();
-            autoLeftClawDropThread = null;
-        }
+
+        putDownCapStoneThread = new PutDownCapStoneThread();
+        putDownCapStoneThread.start();
     }
-    private class AutoLeftClawDropThread extends Thread
-    {
+
+    private class PutDownCapStoneThread extends Thread{
 
         //intialize the current encoder reading
-        public AutoLeftClawDropThread()
+        public PutDownCapStoneThread()
         {
 
-            this.setName("left Claw Drop Skystone");
-
+            this.setName("Put Down Cap Stone Thread");
 
         }
 
@@ -992,21 +934,18 @@ public class MecanumTeleoperate_Angle extends OpMode {
         @Override
         public void run()
         {
+            blnPutDownCapStone = true;
 
             try
             {
-                while ((!isInterrupted()) && (blnLeftClawInCtrl))
+                while ((!isInterrupted()) && (blnPutDownCapStone))
                 {
-                    robot.autoLeftClawL.setPosition(LEFT_CLAWL_PICK);
-                    Thread.sleep(400);
-                    robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
-                    Thread.sleep(300);      //release stone
+                    robot.capStone.setPosition(CAPSTONE_PUTDOWN);
+                    ftcWait(500);
+                    robot.capStone.setPosition(CAPSTONE_INI);
+                    ftcWait(500);
+                    blnPutDownCapStone = false;
 
-                    robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
-                    Thread.sleep(400);
-                    robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
-                    Thread.sleep(200);
-                    blnLeftClawInCtrl = false;
                     Thread.yield();
 
                 }
@@ -1016,73 +955,14 @@ public class MecanumTeleoperate_Angle extends OpMode {
             // or by the interrupted exception thrown from the sleep function.
             //catch (InterruptedException e) {goStraightEndFlag = true;}
             // an error occurred in the run loop.
-            catch (Exception e) {blnLeftClawInCtrl = false;}
+            catch (Exception e) {armInCtrlTask = false;stretchInCtrlTask = false;}
 
         }
+
+
     }
 
 
-    private void autoLeftClawPickUp(){
-        blnLeftClawInCtrl = true;
-        autoLeftClawPickUpThread = new AutoLeftClawPickUpThread();
-        autoLeftClawPickUpThread.start();
-        while(blnLeftClawInCtrl){
-            try {
-                Thread.sleep(200);
-            }
-            catch (Exception e) {blnLeftClawInCtrl = false;}
-
-        }
-        if (autoLeftClawPickUpThread != null){
-            autoLeftClawPickUpThread.interrupt();
-            autoLeftClawPickUpThread = null;
-        }
-
-    }
-
-    private class AutoLeftClawPickUpThread extends Thread
-    {
-
-        //intialize the current encoder reading
-        public AutoLeftClawPickUpThread()
-        {
-
-            this.setName("left Claw Pick Up Skystone");
-
-
-        }
-
-        // called when tread.start is called. thread stays in loop to do what it does until exit is
-        // signaled by main code calling thread.interrupt.
-        @Override
-        public void run()
-        {
-
-            try
-            {
-                while ((!isInterrupted()) && (blnLeftClawInCtrl))
-                {
-                    robot.autoLeftClawL.setPosition(LEFT_CLAWL_PICK);
-                    robot.autoLeftClawU.setPosition(LEFT_CLAWU_PICK);
-                    Thread.sleep(500);
-                    robot.autoLeftClawU.setPosition(LEFT_CLAWU_HOLD);
-                    Thread.sleep(300);
-                    robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD);
-                    Thread.sleep(400);
-                    blnLeftClawInCtrl = false;
-                    Thread.yield();
-
-                }
-
-            }
-            // interrupted means time to shutdown. note we can stop by detecting isInterrupted = true
-            // or by the interrupted exception thrown from the sleep function.
-            //catch (InterruptedException e) {goStraightEndFlag = true;}
-            // an error occurred in the run loop.
-            catch (Exception e) {blnLeftClawInCtrl = false;}
-
-        }
-    }
     private void ftcWait(long ms){
         try {
             Thread.sleep(ms);

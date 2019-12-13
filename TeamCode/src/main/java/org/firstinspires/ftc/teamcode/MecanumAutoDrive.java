@@ -47,7 +47,7 @@ public class MecanumAutoDrive {
     static final double S_ACCELERATION__RATIO = (S_MAX_MOVE_SPEED - S_MIN_MOVE_SPEED) / S_ACCELERATION_DIS;
     static final double S_SLOW_DRIVE_DIS = 0.1;   //last 0.1m, drive at MIN_MOVE_SPEED;
     double straferKp = 0.02;
-
+    static final double straferAdj  = 1.0;
 
     // for thread control
     volatile Orientation currentAngles;        //used for control
@@ -592,7 +592,7 @@ public class MecanumAutoDrive {
         */
     public void straferTask(double dis, double setAng, double power, double momentumDis, double timeOuts){
         runtime.reset();
-
+        dis = dis * straferAdj;
         if (dis > momentumDis){
             dis = dis - momentumDis;
         }

@@ -71,7 +71,8 @@ public class MecanumResetArm extends OpMode {
 
         robot.claw_rotate.setPosition(rotationServoPos);
         robot.claw_open.setPosition(0.5);
-
+        robot.arm_tilt.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        robot.arm_stretch.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Send telemetry message to indicate successful Encoder reset
         telemetry.addData("encoder",  "Starting at %7d :%7d:%7d:%7d",
@@ -176,176 +177,31 @@ public class MecanumResetArm extends OpMode {
             robot.intake_left.setPower(0);
         }
 
-        //for arm control here
-        if (gamepad1.x){
-            // go to reset position -- pick up position
-            arm_tilt_Pos = 0;
-            arm_stretch_Pos = 0;
-            arm_tilt_Pos_index = 0;
-            robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
-            robot.arm_tilt.setPower(1);
-            robot.arm_stretch.setTargetPosition(arm_stretch_Pos);
-            robot.arm_stretch.setPower(1);
-        }
-        if (gamepad1.a){
-           //move the hook
-            if (hookButtonreleaseFlag) {
-                hookButtonreleaseFlag = false;
-
-            }
-            hookBtnDelayCnt = 0;
-        }else{
-            hookBtnDelayCnt ++;
-            if (hookBtnDelayCnt > 10){
-                hookButtonreleaseFlag = true;
-                hookBtnDelayCnt = 5;
-            }
-        }
-
-        if (gamepad1.b){
-          //for arm tile control
-            if (arm_tilt_button_release){
-                arm_tilt_button_release = false;
-                arm_tilt_button_delay_cnt = 0;
-                arm_tilt_Pos_index ++;
-                if (arm_tilt_Pos_index >= arm_tilt_Pos_Array.length ){
-                    arm_tilt_Pos_index = 0;
-                }
-                robot.arm_tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.arm_tilt.setTargetPosition(arm_tilt_Pos_Array[arm_tilt_Pos_index]);
-                robot.arm_tilt.setPower(1);
-
-            }
-        }else{
-            arm_tilt_button_delay_cnt ++;
-            if (arm_tilt_button_delay_cnt > 5){
-                arm_tilt_button_release = true;
-            }
-        }
-
-        if (gamepad1.y){
-            if (yButtonReleaseFlag){
-                if (clawOpenFlag) {
-                    robot.claw_open.setPosition(0.45);
-                    clawOpenFlag = false;
-                }
-                else{
-                    robot.claw_open.setPosition(0.5);
-                    clawOpenFlag = true;
-                }
-                yButtonDelayCnt = 0;
-                yButtonReleaseFlag = false;
-            }
-        }
-        else{
-            yButtonDelayCnt ++;
-            if (yButtonDelayCnt > 5){
-                yButtonReleaseFlag = true;
-                yButtonDelayCnt = 5;
-            }
-        }
-
-
-        //servo pick1 for rotation, maybe we need change to continue mode
-        if (gamepad1.dpad_right){
-            rotationDelayCnt ++;
-            if (rotationDelayCnt > 5) {
-                rotationDelayCnt = 0;
-                rotationServoPos += rotationServoPosStep;
-                if (rotationServoPos > 1.0) rotationServoPos = 1.0;
-                robot.claw_rotate.setPosition(rotationServoPos);
-            }
-        }
-        else if (gamepad1.dpad_left){
-            rotationDelayCnt ++;
-            if (rotationDelayCnt > 5) {
-                rotationDelayCnt = 0;
-                rotationServoPos -= rotationServoPosStep;
-                if (rotationServoPos < 0) rotationServoPos = 0;
-                robot.claw_rotate.setPosition(rotationServoPos);
-            }
-
-        }
-        else{
-            rotationDelayCnt = 10;
-        }
-
-        if (gamepad1.back){
-            rotationServoPos = 0.5;
-            robot.claw_rotate.setPosition(rotationServoPos);
-        }
-
 
         if (gamepad1.right_bumper){
-            //for arm tilt up
-
             robot.arm_tilt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.arm_tilt.setPower(0.5);
         }else if(gamepad1.right_trigger > 0){
-
                 robot.arm_tilt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 robot.arm_tilt.setPower(-0.5);
-
         }
         else{
-            arm_stretch_PosDelayCnt = 5;
+
             robot.arm_tilt.setPower(0);
-            /*
-            robot.arm_tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            arm_tilt_Pos = robot.arm_tilt.getCurrentPosition();
-            if (arm_tilt_Pos < 0) arm_tilt_Pos = 0;
-            if (arm_tilt_Pos > ARM_TILT_POS_LM) arm_tilt_Pos = ARM_TILT_POS_LM;
-            robot.arm_tilt.setTargetPosition(arm_tilt_Pos);
-            robot.arm_tilt.setPower(1);*/
+
         }
 
 
         //arm stretch
         if (gamepad1.dpad_up){
             //for arm stretch out
-            arm_stretch_PosDelayCnt = 0;
-            if (robot.arm_stretch.getCurrentPosition() > (ARM_STRETCH_POS_LM + 150)){
-                robot.arm_stretch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.arm_stretch.setPower(-0.5);
-            }
-            else if((robot.arm_stretch.getCurrentPosition() > ARM_STRETCH_POS_LM)){
-                robot.arm_stretch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.arm_stretch.setPower(-0.1);
-            }
-            else{
-                robot.arm_stretch.setPower(0);
-            }
+
 
         }else if(gamepad1.dpad_down){
-            arm_stretch_PosDelayCnt = 0;
 
-            if (robot.arm_stretch.getCurrentPosition() < -200){
-                robot.arm_stretch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.arm_stretch.setPower(0.2);
-            }
-            else if((robot.arm_stretch.getCurrentPosition() >= -200) && (robot.arm_stretch.getCurrentPosition() <0 )){
-                robot.arm_stretch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                robot.arm_stretch.setPower(0.1);
-            }
-            else{
-                robot.arm_stretch.setPower(0);
-            }
         }
         else{
 
-            arm_stretch_PosDelayCnt ++;
-            if(arm_stretch_PosDelayCnt > 10) {
-                arm_stretch_Pos = robot.arm_stretch.getCurrentPosition();
-                if (arm_stretch_Pos > 0) arm_stretch_Pos = 0;
-                if (arm_stretch_Pos < ARM_STRETCH_POS_LM) arm_stretch_Pos = ARM_STRETCH_POS_LM;
-                robot.arm_stretch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                robot.arm_stretch.setTargetPosition(arm_stretch_Pos);
-                robot.arm_stretch.setPower(0.1);
-                arm_stretch_PosDelayCnt = 20;
-            }
-            else{
-                robot.arm_stretch.setPower(0);
-            }
 
 
 
