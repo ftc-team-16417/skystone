@@ -148,6 +148,50 @@ public class MecanumAutoRedV2 extends LinearOpMode {
 
         waitForStart();
 
+
+
+
+        //move the fundation and park
+
+        //drive to fundation
+        mecanumAutoDrive.straferTask(0.6,0,-0.3,0.02,5);
+        mecanumAutoDrive.goStraightTask(0.8,0,-0.3,0.02,5);
+        mecanumAutoDrive.straferTask(0.2,0,-0.2,0.02,5);
+        //hook down
+        robot.leftHook1.setPosition(LEFT_HOOK1_INI + LEFT_HOOK_RANGE);
+        robot.leftHook2.setPosition(LEFT_HOOK2_INI - LEFT_HOOK_RANGE);
+        mecanumAutoDrive.driveRobot(-0.15,0.15,0.15,-0.15);
+        ftcWait(400);
+        mecanumAutoDrive.driveRobot(-0.3,0.3,0.3,-0.3);
+        mecanumAutoDrive.driveRobot(0.01,-0.1,-0.1,0.01);
+        ftcWait(400);
+        mecanumAutoDrive.driveRobot(0.05,-0.3,-0.3,0.05);
+        ftcWait(1600);
+        mecanumAutoDrive.turnRobotTask(-90,0.5,10.0, MecanumAutoDrive.TURN_METHOD.TWO_WHEEL, 5);
+        mecanumAutoDrive.goStraightTask(0.95, -90, 0.25, 0.02, 5);
+        leftHookUp();
+        mecanumAutoDrive.driveRobot(-0.3,0.3,0.3,-0.3);
+        ftcWait(600);
+        mecanumAutoDrive.stopRobot();
+        robot.intake_left.setPower(-0.7);
+        robot.intake_right.setPower(-0.7);
+        mecanumAutoDrive.goStraightTask(0.55, -90, -0.35, 0.02, 5);
+        mecanumAutoDrive.straferTask(0.92,-90,0.2,0.05,5);
+        robot.intake_left.setPower(0);
+        robot.intake_right.setPower(0);
+
+
+
+
+
+
+
+
+
+
+
+
+
         //mecanumAutoDrive.straferTask(0.72,0,0.2,0.05,5);
         //mecanumAutoDrive.goStraightTask(STONE_WIDTH, 0, 0.1, 0.02, 5);
         //mecanumAutoDrive.turnRobotTask(90,0.5,10.0, MecanumAutoDrive.TURN_METHOD.TWO_WHEEL, 5);
