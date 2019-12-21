@@ -60,25 +60,23 @@ public class teleop_omni extends LinearOpMode {
                 robot.left_intake.setPower(0);
                 robot.right_intake.setPower(0);
             }
-            
+
             if (openClaw == true)
-                robot.claw1.setPosition(0.5);
+                robot.claw2.setPosition(0.6);
             else if (closeClaw == true)
-                robot.claw1.setPosition(0.3);
+                robot.claw2.setPosition(0.2);
 
 
 
 
             if(armup == true){
-                robot.arm.setPower(1);
+                robot.arm.setPower(0.7);
             }
             else if(armdown == true){
-                robot.arm.setPower(-1);;
+                robot.arm.setPower(-0.7);;
             }
-            if(armup == false){
-                robot.arm.setPower(0);
-            }
-            else if(armdown == false){
+
+            else {
                 robot.arm.setPower(0);
             }
 
@@ -113,7 +111,6 @@ public class teleop_omni extends LinearOpMode {
                     clampUp = false;
                 }
             }
-
         }
     }
 }
