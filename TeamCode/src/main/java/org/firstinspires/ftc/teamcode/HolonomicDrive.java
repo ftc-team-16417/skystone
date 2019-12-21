@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name="teleop omni")
-public class teleop_omni extends LinearOpMode {
+public class HolonomicDrive extends LinearOpMode {
     @Override
     public void runOpMode() {
         robot_hardware robot = new robot_hardware();

@@ -24,34 +24,60 @@ public class teleop_omni extends LinearOpMode {
             double forward = gamepad1.left_stick_y;
             double sideways = gamepad1.left_stick_x;
             double cwRotate = gamepad1.right_stick_x;
-            boolean armdown = gamepad1.left_bumper;
-            boolean armup = gamepad1.right_bumper;
+
+            boolean intake = gamepad1.right_bumper;
+            boolean outake = gamepad1.left_bumper;
+
+            boolean armup = gamepad1.dpad_up;
+            boolean armdown = gamepad1.dpad_down;
 
             boolean clampDown = gamepad1.x;
             boolean clampUp = gamepad1.b;
-            robot.lf_drive.setPower(forward - sideways - cwRotate);
-            robot.lr_drive.setPower(forward + sideways - cwRotate);
-            robot.rf_drive.setPower(-forward - sideways - cwRotate);
-            robot.rr_drive.setPower(-forward + sideways - cwRotate);
-            if (armdown == true) {
-                while (armdown == true) {
-                    robot.arm.setPower(0.5);
-                    if (armdown == false) {
-                        robot.arm.setPower(0);
-                        break;
-                    }
+            robot.lf_drive.setPower(sideways-forward+cwRotate);
+            robot.rf_drive.setPower(-sideways-forward-cwRotate);
+            robot.lr_drive.setPower(-sideways-forward+cwRotate);
+            robot.rr_drive.setPower(sideways-forward-cwRotate);
 
-                }
+            if(intake == true){
+                robot.left_intake.setPower(1);
+                robot.right_intake.setPower(-1);
 
-            } else if (armup == true) {
-                while (armup == true) {
-                    robot.arm.setPower(-0.5);
-                    if (armup == false) {
-                        robot.arm.setPower(0);
-                        break;
-                    }
-                }
             }
+            else if(outake == true){
+                robot.left_intake.setPower(-1);
+                robot.right_intake.setPower(1);
+            }
+
+            if(intake == false){
+                robot.left_intake.setPower(0);
+                robot.right_intake.setPower(0);
+
+            }
+            else if(outake == false){
+                robot.left_intake.setPower(0);
+                robot.right_intake.setPower(0);
+            }
+
+
+
+            if(armup == true){
+                robot.arm.setPower(1);
+            }
+            else if(armdown == true){
+                robot.arm.setPower(-1);;
+            }
+            if(armup == false){
+                robot.arm.setPower(0);
+            }
+            else if(armdown == false){
+                robot.arm.setPower(0);
+            }
+
+
+
+
+
+
             //X FOR CLAMPING DOWN
             if (clampDown == true) {
                 robot.grab1.setPosition(0.5);
