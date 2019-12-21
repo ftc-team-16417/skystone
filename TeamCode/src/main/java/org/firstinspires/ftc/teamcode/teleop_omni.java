@@ -28,6 +28,9 @@ public class teleop_omni extends LinearOpMode {
             boolean intake = gamepad1.right_bumper;
             boolean outake = gamepad1.left_bumper;
 
+            boolean openClaw = gamepad1.dpad_left;
+            boolean closeClaw = gamepad1.dpad_right;
+
             boolean armup = gamepad1.dpad_up;
             boolean armdown = gamepad1.dpad_down;
 
@@ -57,6 +60,12 @@ public class teleop_omni extends LinearOpMode {
                 robot.left_intake.setPower(0);
                 robot.right_intake.setPower(0);
             }
+            
+            if (openClaw == true)
+                robot.claw1.setPosition(0.5);
+            else if (closeClaw == true)
+                robot.claw1.setPosition(0.3);
+
 
 
 
