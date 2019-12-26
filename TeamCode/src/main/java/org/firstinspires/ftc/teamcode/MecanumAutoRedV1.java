@@ -189,7 +189,7 @@ public class MecanumAutoRedV1 extends LinearOpMode {
 
 
 
-        mecanumAutoDrive.straferTask(0.2,0,0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.23,0,0.2,0.05,5);
 
 
 
@@ -207,22 +207,22 @@ public class MecanumAutoRedV1 extends LinearOpMode {
 
 
 
-        mecanumAutoDrive.goStraightTask(1.7 + (stoneCheck+1) * STONE_WIDTH, 0, 0.35, 0.02, 5);
+        mecanumAutoDrive.goStraightTask(1.8 + (stoneCheck+1) * STONE_WIDTH, 0, 0.35, 0.02, 5);
      //   robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI - 0.2);
-        mecanumAutoDrive.straferTask(0.025,0,-0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.48,0,-0.2,0.05,5);
         //dropOffStone
 
         robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
         ftcWait(100);
         robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD - 0.02);
         ftcWait(300);
-        mecanumAutoDrive.straferTask(0.18,0,0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.35,0,0.2,0.05,5);
         //reset pick up arm
         robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
         robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
         //mecanumAutoDrive.goStraightTask(2.2 - 0.07 + 5 * STONE_WIDTH + stoneCheck * STONE_WIDTH, 0, -0.35, 0.02, 5);
 
-        mecanumAutoDrive.goStraightTask(2.1 + (stoneCheck+1) * STONE_WIDTH + 2*STONE_WIDTH, 0, -0.35, 0.02, 5);
+        mecanumAutoDrive.goStraightTask(2.25 + (stoneCheck+1) * STONE_WIDTH + 2*STONE_WIDTH, 0, -0.35, 0.02, 5);
 
 //        correctRobotPositionByCam();
         offsetX = 0;
@@ -244,14 +244,14 @@ public class MecanumAutoRedV1 extends LinearOpMode {
         }
 
 
-        mecanumAutoDrive.straferTask(0.31,0,-0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.30,0,-0.2,0.05,5);
         pickUpStone();
 
-        mecanumAutoDrive.straferTask(0.24,1,0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.23,1,0.2,0.05,5);
 
 
-        mecanumAutoDrive.goStraightTask(2.15 + ((1 + stoneCheck) * STONE_WIDTH), 0, 0.35, 0.02, 5);
-        mecanumAutoDrive.straferTask(0.42,0,-0.2,0.05,5);
+        mecanumAutoDrive.goStraightTask(2.05 + ((1 + stoneCheck) * STONE_WIDTH), 0, 0.35, 0.02, 5);
+        mecanumAutoDrive.straferTask(0.43,0,-0.2,0.05,5);
         //drop off stone
         robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
         ftcWait(100);
@@ -289,8 +289,8 @@ public class MecanumAutoRedV1 extends LinearOpMode {
         */
         robot.intake_left.setPower(-0.7);
         robot.intake_right.setPower(-0.7);
-        mecanumAutoDrive.straferTask(0.26,0,0.2,0.05,5);
-        mecanumAutoDrive.goStraightTask(0.9, 0, -0.35, 0.02, 5);
+        mecanumAutoDrive.straferTask(0.28,0,0.2,0.05,5);
+        mecanumAutoDrive.goStraightTask(0.8, 0, -0.35, 0.02, 5);
         //mecanumAutoDrive.straferTask(0.92,-90,0.2,0.05,5);
         robot.intake_left.setPower(0);
         robot.intake_right.setPower(0);

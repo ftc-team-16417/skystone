@@ -159,67 +159,107 @@ public class MecanumAutoRedV2 extends LinearOpMode {
 
 
 
+        mecanumAutoDrive.straferTask(0.79,0,-0.2,0.05,5);
+
+
         //check position by back camera for front perimeter 1
-        mecanumAutoDrive.straferTask(0.77,0,-0.2,0.05,5);//0.78 -- 0.75
         sleep(300);
+        offsetY = 0.03;
+        //  checkPosition1();
+
+
         stoneCheck = checkColor();
 
-        if(stoneCheck == 0){
+        if (stoneCheck == 0) {
             //middle stone is sky stone
-        }else if(stoneCheck == -1){
-            //front one
-            mecanumAutoDrive.goStraightTask(STONE_WIDTH - 0.03, 0, 0.1, 0.02, 5);//0.03 -- 0.05
-        }else{
-            //back one
-            mecanumAutoDrive.goStraightTask(STONE_WIDTH+0.05, 0, -0.1, 0.02, 5);
+
+
         }
-        mecanumAutoDrive.straferTask(0.05,0,-0.2,0.05,5);// 0.03 -- 0
+        else if(stoneCheck == -1) {
+            //front one
+            mecanumAutoDrive.goStraightTask(STONE_WIDTH-0.02, 0, 0.1, 0.02, 5);
 
 
+        }
+        else {
+            //back one
+            mecanumAutoDrive.goStraightTask(STONE_WIDTH-0.02, 0, -0.1, 0.02, 5);
+
+
+        }
+        mecanumAutoDrive.straferTask(0.03,0,-0.2,0,5);
         pickUpStone();
-        //go for dropping
-        mecanumAutoDrive.straferTask(0.22,1,0.2,0.05,5);
-        mecanumAutoDrive.goStraightTask(2 + stoneCheck * STONE_WIDTH, 0, 0.35, 0.03, 5);
-        mecanumAutoDrive.straferTask(0.27,1,-0.2,0.05,5);
 
-        //dropOffStone
-        robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
-        ftcWait(50);
-        robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD + 0.15);
-        ftcWait(350);
-        mecanumAutoDrive.straferTask(0.18,0,0.15,0.05,5);
 
-        //reset pick up arm
-        robot.autoRightClawU.setPosition(LEFT_CLAWU_INI);
-        robot.autoRightClawL.setPosition(LEFT_CLAWL_INI);
-        mecanumAutoDrive.goStraightTask(2.45+(stoneCheck+1)*STONE_WIDTH, 0, -0.35, 0.02, 5);
 
-        //if(stoneCheck == -1) {
-          //  mecanumAutoDrive.straferTask(StrafeDistSecondStone,0,-0.2,0.05,5);
-        //}else if(stoneCheck == 0){
-          //  mecanumAutoDrive.goStraightTask(STONE_WIDTH, 0, -0.1, 0.02, 5);
-            //mecanumAutoDrive.straferTask(StrafeDistSecondStone,0,-0.2,0.05,5);
-        //}else{
-          //  mecanumAutoDrive.goStraightTask(2 * STONE_WIDTH + 0.1, 0, -0.1, 0.02, 5);
-            //mecanumAutoDrive.straferTask(StrafeDistFirstStone,0,-0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.23,0,0.2,0.05,5);
+
+
+
+
+        //if(stoneCheck == 0){
+        //  mecanumAutoDrive.goStraightTask(STONE_WIDTH, 0, 0.1, 0.02, 5);
+        //}
+        //if(stoneCheck == 1){
+        //  mecanumAutoDrive.goStraightTask(STONE_WIDTH*2, 0, 0.1, 0.02, 5);
         //}
 
 
-        pickUpStone();
-        mecanumAutoDrive.straferTask(0.22,0,0.2,0.05,5);
 
-        mecanumAutoDrive.goStraightTask(2.26 + (1 + stoneCheck) * STONE_WIDTH, -1, 0.35, 0.02, 5);
-        mecanumAutoDrive.straferTask(0.3,1,-0.2,0.05,5);
 
-        //drop off stone
-        robot.autoLeftClawU.setPosition(RIGHT_CLAWU_RELEASE);
-        ftcWait(70);
-        robot.autoLeftClawL.setPosition(RIGHT_CLAWL_HOLD + 0.12);
+
+
+
+        mecanumAutoDrive.goStraightTask(1.8 + (stoneCheck+1) * STONE_WIDTH, 0, 0.35, 0.02, 5);
+        //   robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI - 0.2);
+        mecanumAutoDrive.straferTask(0.48,0,-0.2,0.05,5);
+        //dropOffStone
+
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
+        ftcWait(100);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD - 0.02);
         ftcWait(300);
+        mecanumAutoDrive.straferTask(0.35,0,0.2,0.05,5);
+        //reset pick up arm
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
+        //mecanumAutoDrive.goStraightTask(2.2 - 0.07 + 5 * STONE_WIDTH + stoneCheck * STONE_WIDTH, 0, -0.35, 0.02, 5);
 
-        //hookdown first
+        mecanumAutoDrive.goStraightTask(2.25 + (stoneCheck+1) * STONE_WIDTH + 2*STONE_WIDTH, 0, -0.35, 0.02, 5);
+
+//        correctRobotPositionByCam();
+        offsetX = 0;
+        offsetY = 0;
+
+        if (stoneCheck == -1) {
+            if (offsetX > 0) {
+                mecanumAutoDrive.goStraightTask(offsetX, 0, -0.1, 0.02, 5);
+            }
+            if (offsetX < 0){
+                mecanumAutoDrive.goStraightTask(offsetX, 0, 0.1, 0.02, 5);
+            }
+        }
+        else if(stoneCheck == 0){
+            mecanumAutoDrive.goStraightTask(STONE_WIDTH + offsetX, 0, -0.1, 0.02, 5);
+        }
+        else {
+            mecanumAutoDrive.goStraightTask(2 * STONE_WIDTH + offsetX + 0.03, 0, -0.1, 0.02, 5);
+        }
 
 
+        mecanumAutoDrive.straferTask(0.30,0,-0.2,0.05,5);
+        pickUpStone();
+
+        mecanumAutoDrive.straferTask(0.23,1,0.2,0.05,5);
+
+
+        mecanumAutoDrive.goStraightTask(2.05 + ((1 + stoneCheck) * STONE_WIDTH), 0, 0.35, 0.02, 5);
+        mecanumAutoDrive.straferTask(0.43,0,-0.2,0.05,5);
+        //drop off stone
+        robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
+        ftcWait(100);
+        robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD + 0.02);
+        ftcWait(300);
         mecanumAutoDrive.driveRobot(-0.15,0.15,0.15,-0.15);
         leftHookDown();
         ftcWait(200);
