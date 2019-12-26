@@ -5,12 +5,14 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 public class MecanumChassis {
     /* Public OpMode members. */
@@ -20,18 +22,41 @@ public class MecanumChassis {
     public DcMotor  rightRearDrive  = null;
     public DcMotor intake_left = null;
     public DcMotor intake_right = null;
-    public DcMotor arm_tilt = null;
+    public DcMotorEx arm_tilt = null;
     public DcMotor arm_stretch = null;
     public Servo claw_rotate = null;
     public Servo claw_open = null;
-    public Servo hook_left = null;
-    public Servo hook_right = null;
+    public Servo claw_tilt = null;
 
-    public ColorSensor sensorColor = null;
-    public DistanceSensor sensorDistance = null;
+    public ColorSensor sensorColorLF = null;
+    public DistanceSensor sensorDistanceLF = null;
+
+    public ColorSensor sensorColorLR = null;
+    public DistanceSensor sensorDistanceLR = null;
+
+    public ColorSensor sensorColorRF = null;
+    public DistanceSensor sensorDistanceRF = null;
+
+    public ColorSensor sensorColorRR = null;
+    public DistanceSensor sensorDistanceRR = null;
 
     public BNO055IMU imu;
 
+    public DigitalChannel lowerSwitch = null;
+    public DigitalChannel upperSwitch = null;
+
+
+    public Servo autoLeftClawL = null;
+    public Servo autoLeftClawU = null;
+    public Servo autoRightClawL = null;
+    public Servo autoRightClawU = null;
+
+    public Servo leftHook1 = null;
+    public Servo leftHook2 = null;
+    public Servo rightHook1 = null;
+    public Servo rightHook2 = null;
+
+    public Servo capStone = null;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -74,7 +99,7 @@ public class MecanumChassis {
 
         intake_left  = hwMap.get(DcMotor.class, "intake_left");
         intake_right = hwMap.get(DcMotor.class, "intake_right");
-        arm_tilt  = hwMap.get(DcMotor.class, "arm_tilt");
+        arm_tilt  = hwMap.get(DcMotorEx.class, "arm_tilt");
         arm_stretch = hwMap.get(DcMotor.class, "arm_stretch");
 
         //intake
@@ -109,6 +134,13 @@ public class MecanumChassis {
         leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        leftRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightRearDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+
         intake_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         arm_stretch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -118,33 +150,70 @@ public class MecanumChassis {
         intake_right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         arm_stretch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         arm_tilt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        // set left motor to run to target encoder position and stop with brakes on.
-        arm_tilt.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        arm_stretch.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
 
 
         //servo
         // Define and initialize ALL installed servos.
         claw_rotate  = hwMap.get(Servo.class, "claw_rotate");
         claw_open = hwMap.get(Servo.class, "claw_open");
-        claw_rotate.setPosition(0.5);     //middle position
+        claw_rotate.setPosition(0.4);     //middle position
         claw_open.setPosition(0.5);     //middle position
 
-        hook_left  = hwMap.get(Servo.class, "hook_left");
-        hook_right = hwMap.get(Servo.class, "hook_right");
-        hook_left.setPosition(0.25);     //middle position
-        hook_right.setPosition(0.78);     //middle position
 
-        /*
+
+
+        claw_tilt  = hwMap.get(Servo.class, "claw_tilt");
+        claw_tilt.setPosition(0.86);     //middle position
+
+
         //color sensor
         // Get a reference to our sensor object.
         // get a reference to the color sensor.
-        sensorColor = hwMap.get(ColorSensor.class, "color_sensor");
-
+        sensorColorLF = hwMap.get(ColorSensor.class, "color_sensorLF");
+        sensorColorLR = hwMap.get(ColorSensor.class, "color_sensorLR");
         // get a reference to the distance sensor that shares the same name.
-        sensorDistance = hwMap.get(DistanceSensor.class, "color_sensor");
-    */
+        sensorDistanceLF = hwMap.get(DistanceSensor.class, "color_sensorLF");
+        sensorDistanceLR = hwMap.get(DistanceSensor.class, "color_sensorLR");
+
+
+        sensorColorRF = hwMap.get(ColorSensor.class, "color_sensorRF");
+        sensorColorRR = hwMap.get(ColorSensor.class, "color_sensorRR");
+        // get a reference to the distance sensor that shares the same name.
+        sensorDistanceRF = hwMap.get(DistanceSensor.class, "color_sensorRF");
+        sensorDistanceRR = hwMap.get(DistanceSensor.class, "color_sensorRR");
+
+        // for magnetic switch sensor
+        lowerSwitch = hwMap.get(DigitalChannel.class, "lowerSwitch");
+        lowerSwitch.setMode(DigitalChannel.Mode.INPUT);
+        //upperSwitch = hwMap.get(DigitalChannel.class, "upperSwitch");
+        //upperSwitch.setMode(DigitalChannel.Mode.INPUT);
+
+        //for auto left claw
+        autoLeftClawL = hwMap.get(Servo.class, "leftClawL");
+        autoLeftClawU = hwMap.get(Servo.class, "leftClawU");
+        autoLeftClawU.setPosition(0.55);
+        autoLeftClawL.setPosition(0.575);
+
+        //for left hook
+        leftHook1 = hwMap.get(Servo.class, "leftHookF");
+        leftHook2 = hwMap.get(Servo.class,"leftHookR");
+        leftHook1.setPosition(0.48);
+        leftHook2.setPosition(0.49);
+
+        //for auto right claw
+        autoRightClawL = hwMap.get(Servo.class, "rightClawL");
+        autoRightClawU = hwMap.get(Servo.class, "rightClawU");
+        autoRightClawU.setPosition(0.44);
+        autoRightClawL.setPosition(0.47);
+
+        //for left hook
+        rightHook1 = hwMap.get(Servo.class, "rightHookF");
+        rightHook2 = hwMap.get(Servo.class,"rightHookR");
+        rightHook1.setPosition(0.55);
+        rightHook2.setPosition(0.472);
+
+        capStone = hwMap.get(Servo.class, "capstone_servo");
+        capStone.setPosition(0.55);
 
     }
 

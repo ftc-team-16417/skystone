@@ -18,24 +18,37 @@ import static java.lang.Math.signum;
 
 
 public class MecanumAutoDrive {
-    static final double     COUNTS_PER_MOTOR_REV    = 383.6 ;    // eg: matrix motor + gobilda gearbox
+    static final double     COUNTS_PER_MOTOR_REV    = 145.6    ;// 435RPM-383.6 1150RPM-145.6    // eg: matrix motor + gobilda gearbox
     static final double     DRIVE_GEAR_REDUCTION    = 2.0 ;     // mecanum drive chassis
     static final double     WHEEL_DIAMETER_M   = 0.10 ;     // For figuring circumference
     static final double     COUNTS_PER_M         = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
-            (WHEEL_DIAMETER_M * 3.1415);
+            (WHEEL_DIAMETER_M * Math.PI);
     static final double DIS_2WHEELS = 0.735;          // for 4 mecanum wheels, actually test value is 0.74 distance between 2 wheels, for encoder turning
 
-    static final double MAX_MOVE_SPEED = 1.0;
-    static final double MIN_MOVE_SPEED= 0.05;		// need test
+    static final double MAX_MOVE_SPEED = 0.5;
+    static final double MIN_MOVE_SPEED= 0.08;		// need test
 
     static final double STOP_DISTANCE =  1.0;       //full speed brake distance
     // which means the max speed to stop min speed in 0.5m
     static final double GO_SLOWDOWN_RATIO = 	(MAX_MOVE_SPEED - MIN_MOVE_SPEED) / STOP_DISTANCE;
-    static final double ACCELERATION_DIS = 0.1;         // in 0.2m could be acceleration to 1.0
+    static final double ACCELERATION_DIS = 0.1;         // in 0.1m could be acceleration to 1.0
     static final double ACCELERATION__RATIO = (MAX_MOVE_SPEED - MIN_MOVE_SPEED) / ACCELERATION_DIS;
     static final double SLOW_DRIVE_DIS = 0.05;   //last 0.1m, drive at MIN_MOVE_SPEED;
 
-    double goKp = 0.05;
+    double goKp = 0.015;
+    //for strafer drive
+    static final double S_MAX_MOVE_SPEED = 1.0;
+    static final double S_MIN_MOVE_SPEED= 0.05;		// need test
+
+    static final double S_STOP_DISTANCE =  0.3;       //full speed brake distance
+    // which means the max speed to stop min speed in 0.5m
+    static final double S_GO_SLOWDOWN_RATIO = 	(S_MAX_MOVE_SPEED - S_MIN_MOVE_SPEED) / S_STOP_DISTANCE;
+    static final double S_ACCELERATION_DIS = 0.2;         // in 0.1m could be acceleration to 1.0
+    static final double S_ACCELERATION__RATIO = (S_MAX_MOVE_SPEED - S_MIN_MOVE_SPEED) / S_ACCELERATION_DIS;
+    static final double S_SLOW_DRIVE_DIS = 0.1;   //last 0.1m, drive at MIN_MOVE_SPEED;
+    double straferKp = 0.02;
+    static final double straferAdj  = 1.0;
+
     // for thread control
     volatile Orientation currentAngles;        //used for control
     volatile double yawReading ;
@@ -47,11 +60,13 @@ public class MecanumAutoDrive {
 
     static final double START_SLOWTURN_ANGLE = 90;      //less than 90, start to slow down
     static final double TURN_MAX_POWER = 1.0    ;
-    static final double TURN_MIN_POWER = 0.05;
-    static final double SLOWTURN_ANGLE = 0;         //now set to "0" in 5 degre turn by TURN_MIN_POWER
+    static final double TURN_MIN_POWER = 0.03;
+    static final double SLOWTURN_ANGLE = 10;         //now set to "0" in 5 degree turn by TURN_MIN_POWER
     volatile  boolean turnEndFlag = true;
 
     MecanumAutoDrive.TurnAngleThread turnAngleThread = null;
+    StraferDriveStraightThread straferDriveStraightThread = null;
+    volatile boolean straferEndFlag = true;
 
     public enum TURN_METHOD{
         TWO_WHEEL,
@@ -77,6 +92,24 @@ public class MecanumAutoDrive {
     lastYawReading = yawReading;
     headingAngle = yawReading;
 
+    }
+
+    public void killEveryThing(){
+        if (turnAngleThread != null){
+            turnAngleThread.interrupt();
+            turnAngleThread = null;
+        }
+
+        if (driveStraightThread != null){
+            driveStraightThread.interrupt();
+            driveStraightThread = null;
+
+        }
+
+        if (straferDriveStraightThread != null){
+            straferDriveStraightThread.interrupt();
+            straferDriveStraightThread = null;
+        }
     }
 
 
@@ -117,13 +150,15 @@ public class MecanumAutoDrive {
     }
 
     /* set the robot command out*/
-    public void driveRobot(double leftPower, double rightPower){
-        leftPower    = Range.clip(leftPower, -1.0, 1.0) ;
-        rightPower   = Range.clip(rightPower, -1.0, 1.0) ;
-        this.robot.rightFrontDrive.setPower(rightPower);
-        this.robot.rightRearDrive.setPower(rightPower);
-        this.robot.leftRearDrive.setPower(leftPower);
-        this.robot.leftFrontDrive.setPower(leftPower);
+    public void driveRobot(double leftPowerF, double leftPowerR, double rightPowerF, double rightPowerR){
+        leftPowerF    = Range.clip(leftPowerF, -1.0, 1.0) ;
+        rightPowerF   = Range.clip(rightPowerF, -1.0, 1.0) ;
+        leftPowerR    = Range.clip(leftPowerR, -1.0, 1.0) ;
+        rightPowerR   = Range.clip(rightPowerR, -1.0, 1.0) ;
+        this.robot.rightFrontDrive.setPower(rightPowerF);
+        this.robot.rightRearDrive.setPower(rightPowerR);
+        this.robot.leftRearDrive.setPower(leftPowerR);
+        this.robot.leftFrontDrive.setPower(leftPowerF);
     }
 
     /* goStraightTask
@@ -255,13 +290,13 @@ public class MecanumAutoDrive {
 
 
                         // gyro angle correction here
-                        dynamicKp = (0.1 + 0.9 * abs(goSpeed)) * goKp;
+                        dynamicKp = (0.5 + 0.5 * abs(goSpeed)) * goKp;
                         ctrlValue = dynamicKp * (this.setAngle - headingAngle);
 
                         leftCmd = goSpeed - ctrlValue ;
                         rightCmd = goSpeed + ctrlValue ;
 
-                        driveRobot(leftCmd, rightCmd);
+                        driveRobot(leftCmd, leftCmd, rightCmd, rightCmd);
                     }
                     else{
                         stopRobot();
@@ -293,10 +328,10 @@ public class MecanumAutoDrive {
     /* in this function will start the actually drive thread
      */
 
-    public void turnRobotTask(double setAng, double power, double deanZone, TURN_METHOD turnMethod,double timeOuts){
+    public void turnRobotTask(double setAng, double power, double deadZone, TURN_METHOD turnMethod,double timeOuts){
         runtime.reset();
 
-        turnAngleThread = new TurnAngleThread(setAng,power,deanZone,turnMethod );
+        turnAngleThread = new TurnAngleThread(setAng,power,deadZone,turnMethod );
 
         turnAngleThread.start();
         while ((!turnEndFlag) && (runtime.seconds() < timeOuts)){
@@ -372,13 +407,13 @@ public class MecanumAutoDrive {
                         if (abs(ctrlValue) < TURN_MIN_POWER) ctrlValue = signum(ctrlValue) * TURN_MIN_POWER;
 
                         if (this.turnMethod == TURN_METHOD.TWO_WHEEL) {
-                            driveRobot(-ctrlValue, ctrlValue);
+                            driveRobot(-ctrlValue, -ctrlValue, ctrlValue, ctrlValue);
                         }
                         else if (this.turnMethod == TURN_METHOD.LEFT_WHEEL){
-                            driveRobot(-ctrlValue * 2, 0);
+                            driveRobot(-ctrlValue * 2, -ctrlValue * 2,0,0);
                         }
                         else if (this.turnMethod == TURN_METHOD.RIGHT_WHEEL){
-                            driveRobot(0,ctrlValue * 2);
+                            driveRobot(0,0, ctrlValue * 2, ctrlValue *2);
                         }
                     }
                     else{
@@ -430,6 +465,11 @@ public class MecanumAutoDrive {
             this.robot.rightRearDrive.setTargetPosition(newRightRearTarget);
 
             // Turn On RUN_TO_POSITION
+            this.robot.leftFrontDrive.setTargetPosition(this.robot.leftFrontDrive.getCurrentPosition());
+            this.robot.leftRearDrive.setTargetPosition(this.robot.leftRearDrive.getCurrentPosition());
+            this.robot.rightFrontDrive.setTargetPosition(this.robot.rightFrontDrive.getCurrentPosition());
+            this.robot.rightRearDrive.setTargetPosition(this.robot.rightRearDrive.getCurrentPosition());
+
             this.robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             this.robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             this.robot.leftRearDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -519,6 +559,10 @@ public class MecanumAutoDrive {
             this.robot.rightRearDrive.setTargetPosition(newRightRearTarget);
 
             // Turn On RUN_TO_POSITION
+            this.robot.leftFrontDrive.setTargetPosition(this.robot.leftFrontDrive.getCurrentPosition());
+            this.robot.leftRearDrive.setTargetPosition(this.robot.leftRearDrive.getCurrentPosition());
+            this.robot.rightFrontDrive.setTargetPosition(this.robot.rightFrontDrive.getCurrentPosition());
+            this.robot.rightRearDrive.setTargetPosition(this.robot.rightRearDrive.getCurrentPosition());
             this.robot.leftFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             this.robot.rightFrontDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             this.robot.leftRearDrive.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -558,6 +602,169 @@ public class MecanumAutoDrive {
             this.robot.leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             this.robot.rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             sleep(200);
+
+        }
+    }
+
+
+
+    /* goStraightTask
+       /* paramter:
+       /*           dis     : unit:m, always positive
+       /*           setAng  : unit: degree, absolute angle, not relative angle
+       /*           power   : max go forward power, negative means move back
+       /*           momentumDis:  unit:m
+       /*           timeOuts: Time out unit: second
+       /* in this function will start the actually drive thread
+        */
+    public void straferTask(double dis, double setAng, double power, double momentumDis, double timeOuts){
+        runtime.reset();
+        dis = dis * straferAdj;
+        if (dis > momentumDis){
+            dis = dis - momentumDis;
+        }
+
+        straferDriveStraightThread = new StraferDriveStraightThread(dis,setAng,power);
+
+        straferDriveStraightThread.start();
+        //wait here
+        while ((!straferEndFlag) && (runtime.seconds() < timeOuts)){
+            //wait here
+            this.telemetry.addData("Encoder",  "at %7d :%7d:%7d:%7d",
+                    robot.leftFrontDrive.getCurrentPosition(),
+                    robot.leftRearDrive.getCurrentPosition(),
+                    robot.rightFrontDrive.getCurrentPosition(),
+                    robot.rightRearDrive.getCurrentPosition());
+            this.telemetry.update();
+            Thread.yield();
+
+        }
+        //out
+        straferDriveStraightThread.interrupt();
+        stopRobot();
+        sleep(100);  //wait for a while between task to give some time to update the encoder reading
+    }
+
+    /*
+    /* actually drive thread
+    /*
+
+     */
+    private class StraferDriveStraightThread extends Thread
+    {
+        private double distance = 0;
+        private double setAngle = 0;
+        private double setPower = 0;
+
+        private double lfStartPos = 0, rfStartPos = 0, lrStartPos = 0, rrStartPos = 0;
+        private double accelerateDis = 0;  // accelerate distance
+        private double goSlowDownDis = 0;
+        private double remainDis = 0;
+        private double dynamicKp = 0;
+        double disDone = 0;
+        double goSpeed = 0;
+        double leftCmdF = 0;
+        double leftCmdR = 0;
+        double rightCmdF = 0;
+        double rightCmdR = 0;
+        double ctrlValue = 0;
+
+        //intialize the current encoder reading
+        public StraferDriveStraightThread(double dis, double setAng, double power)
+        {
+            this.distance = dis;
+            this.setAngle = setAng;
+            this.setPower = power;
+            straferEndFlag = false;
+            this.lfStartPos = robot.leftFrontDrive.getCurrentPosition();
+            this.rfStartPos = robot.rightFrontDrive.getCurrentPosition();
+            this.lrStartPos = robot.leftRearDrive.getCurrentPosition();
+            this.rrStartPos = robot.rightRearDrive.getCurrentPosition();
+            this.goSlowDownDis = (double)(abs(this.setPower) - S_MIN_MOVE_SPEED) / S_GO_SLOWDOWN_RATIO;
+            this.accelerateDis = (double)(abs(this.setPower) - S_MIN_MOVE_SPEED) / S_ACCELERATION__RATIO;
+            this.remainDis = 0;
+            this.disDone = 0;
+            this.goSpeed = 0;
+            this.setName("Strafer Drive thread");
+
+        }
+
+        // called when tread.start is called. thread stays in loop to do what it does until exit is
+        // signaled by main code calling thread.interrupt.
+        @Override
+        public void run()
+        {
+
+
+            try
+            {
+                while (!isInterrupted())
+                {
+                    //here we keep driving the robot to set distance with set angle
+                    getHeadingAngle();    // get heading angle
+
+                    disDone = (abs (robot.leftFrontDrive.getCurrentPosition() - lfStartPos) + abs(robot.rightFrontDrive.getCurrentPosition() - rfStartPos) +
+                            + abs(robot.leftRearDrive.getCurrentPosition() - lrStartPos) + abs(robot.rightRearDrive.getCurrentPosition() - rrStartPos)) /4;
+                    disDone = disDone/COUNTS_PER_M;
+                    this.remainDis = this.distance - disDone;
+                    if (disDone < this.distance) {
+                        //keep driving
+                        // if in acceleration distance and setPower > 0.5, we need increase the speed to slowly
+                        if ((this.disDone < accelerateDis) && (abs(this.setPower) > 0.5) && (this.distance > accelerateDis)) {
+                            goSpeed = signum(this.setPower) * S_MIN_MOVE_SPEED + signum(this.setPower) * (disDone) * S_ACCELERATION__RATIO;
+
+                        } else {
+
+
+                            if (this.remainDis < this.goSlowDownDis)   //start to slow down
+                            {
+
+                                //start to slow down
+                                if (remainDis <= S_SLOW_DRIVE_DIS)        //last 0.1m, drive at MIN_MOVE_SPEED
+                                {
+                                    //if in slow drive distance, move at minimum speed
+                                    goSpeed = signum(this.setPower) * S_MIN_MOVE_SPEED;
+                                } else {
+
+                                    goSpeed = signum(this.setPower) * S_MIN_MOVE_SPEED + signum(this.setPower) * (remainDis - S_SLOW_DRIVE_DIS) * S_GO_SLOWDOWN_RATIO;
+
+                                    if (abs(goSpeed) < S_MIN_MOVE_SPEED) {
+                                        goSpeed = signum(this.setPower) * S_MIN_MOVE_SPEED;
+                                    }
+                                }
+
+                            } else {
+                                goSpeed = this.setPower;
+                            }
+                        }
+
+
+                        // gyro angle correction here
+                        dynamicKp = (0.1 + 0.9 * abs(goSpeed)) * straferKp;
+                        ctrlValue = dynamicKp * (this.setAngle - headingAngle);
+
+                        leftCmdF = goSpeed - ctrlValue ;
+                        leftCmdR = -goSpeed - ctrlValue ;
+                        rightCmdF = -goSpeed + ctrlValue;
+                        rightCmdR = goSpeed + ctrlValue;
+
+                        driveRobot(leftCmdF, leftCmdR, rightCmdF, rightCmdR);
+                    }
+                    else{
+                        stopRobot();
+                        straferEndFlag = true;
+
+                    }
+
+                    Thread.yield();
+                }
+
+            }
+            // interrupted means time to shutdown. note we can stop by detecting isInterrupted = true
+            // or by the interrupted exception thrown from the sleep function.
+            //catch (InterruptedException e) {goStraightEndFlag = true;}
+            // an error occurred in the run loop.
+            catch (Exception e) {straferEndFlag = true;}
 
         }
     }
