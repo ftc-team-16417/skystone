@@ -116,9 +116,9 @@ public class MecanumAutoRedV2 extends LinearOpMode {
 
         //make sure the IMU gyro is calibrated before continue
         while(!isStopRequested() && ! robot.imu.isGyroCalibrated() &&
-                                    ! robot.imu.isAccelerometerCalibrated() &&
-                                    ! robot.imu.isMagnetometerCalibrated() &&
-                                    ! robot.imu.isSystemCalibrated())
+                ! robot.imu.isAccelerometerCalibrated() &&
+                ! robot.imu.isMagnetometerCalibrated() &&
+                ! robot.imu.isSystemCalibrated())
         {
             idle();
         }
@@ -159,7 +159,7 @@ public class MecanumAutoRedV2 extends LinearOpMode {
 
 
 
-        mecanumAutoDrive.straferTask(0.79,0,-0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.77,0,-0.2,0.05,5);
 
 
         //check position by back camera for front perimeter 1
@@ -225,36 +225,20 @@ public class MecanumAutoRedV2 extends LinearOpMode {
         robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
         //mecanumAutoDrive.goStraightTask(2.2 - 0.07 + 5 * STONE_WIDTH + stoneCheck * STONE_WIDTH, 0, -0.35, 0.02, 5);
 
-        mecanumAutoDrive.goStraightTask(2.25 + (stoneCheck+1) * STONE_WIDTH + 2*STONE_WIDTH, 0, -0.35, 0.02, 5);
-
-//        correctRobotPositionByCam();
-        offsetX = 0;
-        offsetY = 0;
-
-        if (stoneCheck == -1) {
-            if (offsetX > 0) {
-                mecanumAutoDrive.goStraightTask(offsetX, 0, -0.1, 0.02, 5);
-            }
-            if (offsetX < 0){
-                mecanumAutoDrive.goStraightTask(offsetX, 0, 0.1, 0.02, 5);
-            }
-        }
-        else if(stoneCheck == 0){
-            mecanumAutoDrive.goStraightTask(STONE_WIDTH + offsetX, 0, -0.1, 0.02, 5);
-        }
-        else {
-            mecanumAutoDrive.goStraightTask(2 * STONE_WIDTH + offsetX + 0.03, 0, -0.1, 0.02, 5);
-        }
+        mecanumAutoDrive.goStraightTask(2.24 + (stoneCheck+1) * STONE_WIDTH + 2*STONE_WIDTH, 0, -0.35, 0.02, 5);
 
 
-        mecanumAutoDrive.straferTask(0.30,0,-0.2,0.05,5);
+
+
+
+        mecanumAutoDrive.straferTask(0.28,0,-0.2,0.05,5);
         pickUpStone();
 
-        mecanumAutoDrive.straferTask(0.23,1,0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.22,1,0.2,0.05,5);
 
 
-        mecanumAutoDrive.goStraightTask(2.05 + ((1 + stoneCheck) * STONE_WIDTH), 0, 0.35, 0.02, 5);
-        mecanumAutoDrive.straferTask(0.43,0,-0.2,0.05,5);
+        mecanumAutoDrive.goStraightTask(2.24 + ((1 + stoneCheck) * STONE_WIDTH), 0, 0.35, 0.02, 5);
+        mecanumAutoDrive.straferTask(0.45,0,-0.2,0.05,5);
         //drop off stone
         robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
         ftcWait(100);
@@ -278,7 +262,9 @@ public class MecanumAutoRedV2 extends LinearOpMode {
         mecanumAutoDrive.goStraightTask(0.82, -85, 0.25, 0.02, 5);
         leftHookUp();
         mecanumAutoDrive.straferTask(0.07,-85,0.2,0.05,5);
-        mecanumAutoDrive.stopRobot();
+        mecanumAutoDrive.driveRobot(0,-0.7,-1,0);
+        ftcWait(2200);
+
 
 /*
         //park under the bridge
@@ -289,13 +275,12 @@ public class MecanumAutoRedV2 extends LinearOpMode {
         robot.intake_left.setPower(0);
         robot.intake_right.setPower(0);
         /*
-
          */
     }
 
 
 
-        //----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     // Telemetry Configuration
     //----------------------------------------------------------------------------------------------
 
@@ -419,16 +404,16 @@ public class MecanumAutoRedV2 extends LinearOpMode {
     private void pickUpStone(){
         try
         {
-                robot.autoLeftClawU.setPosition(LEFT_CLAWU_PICK);
-                sleep(200);
-                robot.autoLeftClawL.setPosition(LEFT_CLAWL_PICK);
+            robot.autoLeftClawU.setPosition(LEFT_CLAWU_PICK);
+            sleep(200);
+            robot.autoLeftClawL.setPosition(LEFT_CLAWL_PICK);
 
-                Thread.sleep(500);
-                robot.autoLeftClawU.setPosition(LEFT_CLAWU_HOLD);
-                Thread.sleep(700);
-                robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD);
-                Thread.sleep(400);
-                //Thread.yield();
+            Thread.sleep(500);
+            robot.autoLeftClawU.setPosition(LEFT_CLAWU_HOLD);
+            Thread.sleep(700);
+            robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD);
+            Thread.sleep(400);
+            //Thread.yield();
 
         }
         // interrupted means time to shutdown. note we can stop by detecting isInterrupted = true
@@ -589,7 +574,6 @@ public class MecanumAutoRedV2 extends LinearOpMode {
             if (offsetY > 0){
                 mecanumAutoDrive.straferTask(Math.abs(offsetY), 0,-0.2,0,5);
             }
-
         }*/
     }
 
