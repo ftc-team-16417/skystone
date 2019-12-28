@@ -24,6 +24,7 @@ public class MecanumChassis {
     public DcMotor intake_right = null;
     public DcMotorEx arm_tilt = null;
     public DcMotor arm_stretch = null;
+    public DcMotor bar_lift = null;
     public Servo claw_rotate = null;
     public Servo claw_open = null;
     public Servo claw_tilt = null;
@@ -97,16 +98,17 @@ public class MecanumChassis {
         leftRearDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightRearDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
-        intake_left  = hwMap.get(DcMotor.class, "intake_left");
-        intake_right = hwMap.get(DcMotor.class, "intake_right");
-        arm_tilt  = hwMap.get(DcMotorEx.class, "arm_tilt");
-        arm_stretch = hwMap.get(DcMotor.class, "arm_stretch");
+        intake_left  = hwMap.get(DcMotor.class, "left_intake");
+        intake_right = hwMap.get(DcMotor.class, "right_intake");
+//        arm_tilt  = hwMap.get(DcMotorEx.class, "arm_tilt");
+//        arm_stretch = hwMap.get(DcMotor.class, "arm_stretch");
+        bar_lift = hwMap.get(DcMotor.class, "arm");
 
         //intake
         intake_left.setDirection(DcMotor.Direction.FORWARD);
         intake_right.setDirection(DcMotor.Direction.REVERSE);
-        arm_tilt.setDirection(DcMotor.Direction.FORWARD);
-        arm_stretch.setDirection(DcMotor.Direction.FORWARD);
+//        arm_tilt.setDirection(DcMotor.Direction.FORWARD);
+//        arm_stretch.setDirection(DcMotor.Direction.FORWARD);
 
 
 
@@ -118,8 +120,8 @@ public class MecanumChassis {
         rightRearDrive.setPower(0);
         intake_left.setPower(0);
         intake_right.setPower(0);
-        arm_stretch.setPower(0);
-        arm_tilt.setPower(0);
+//        arm_stretch.setPower(0);
+//        arm_tilt.setPower(0);
 
 
         // Set all motors to run without encoders.
@@ -143,29 +145,31 @@ public class MecanumChassis {
 
         intake_left.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intake_right.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm_stretch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        arm_tilt.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        arm_stretch.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        arm_tilt.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        bar_lift.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
 
         intake_left.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intake_right.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        arm_stretch.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        arm_tilt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        bar_lift.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //arm_tilt.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
 
         //servo
         // Define and initialize ALL installed servos.
-        claw_rotate  = hwMap.get(Servo.class, "claw_rotate");
-        claw_open = hwMap.get(Servo.class, "claw_open");
-        claw_rotate.setPosition(0.4);     //middle position
+        //claw_rotate  = hwMap.get(Servo.class, "claw_rotate");
+        claw_open = hwMap.get(Servo.class, "claw1");
+        //claw_rotate.setPosition(0.4);     //middle position
         claw_open.setPosition(0.5);     //middle position
 
 
 
 
-        claw_tilt  = hwMap.get(Servo.class, "claw_tilt");
-        claw_tilt.setPosition(0.86);     //middle position
+//        claw_tilt  = hwMap.get(Servo.class, "claw_tilt");
+//        claw_tilt.setPosition(0.86);     //middle position
 
-
+/*
         //color sensor
         // Get a reference to our sensor object.
         // get a reference to the color sensor.
@@ -214,7 +218,7 @@ public class MecanumChassis {
 
         capStone = hwMap.get(Servo.class, "capstone_servo");
         capStone.setPosition(0.55);
-
+*/
     }
 
 
