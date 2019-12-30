@@ -265,7 +265,7 @@ public class MecanumAutoRedV1 extends LinearOpMode {
         */
         robot.intake_left.setPower(-0.7);
         robot.intake_right.setPower(-0.7);
-        mecanumAutoDrive.straferTask(0.28,0,0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.32,0,0.2,0.05,5);
         mecanumAutoDrive.goStraightTask(0.85, 0, -0.35, 0.02, 5);
         //mecanumAutoDrive.straferTask(0.92,-90,0.2,0.05,5);
         robot.intake_left.setPower(0);

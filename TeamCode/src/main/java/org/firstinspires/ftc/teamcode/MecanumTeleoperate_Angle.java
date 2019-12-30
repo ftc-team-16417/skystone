@@ -24,7 +24,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
     MecanumChassis robot   = new MecanumChassis();   // Use a Mecanum chassis's hardware
 
 
-    double gearLevel = 0.3;
+    double gearLevel = 0.5;
     final double CLAW_ROTATION_INI = 0.4;
     double rotationServoPos = CLAW_ROTATION_INI;
     double rotationServoPosStep = 0.2;

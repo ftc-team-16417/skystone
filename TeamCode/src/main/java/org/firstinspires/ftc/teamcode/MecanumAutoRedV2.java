@@ -137,7 +137,7 @@ public class MecanumAutoRedV2 extends LinearOpMode {
         composeTelemetry();
         telemetry.update();
 
-        skystoneNavigaitonThread = new SkystoneNavigation(robot, telemetry);
+        //skystoneNavigaitonThread = new SkystoneNavigation(robot, telemetry);
 
 
         telemetry.addData("Working Mode", "waiting for start");
@@ -145,7 +145,7 @@ public class MecanumAutoRedV2 extends LinearOpMode {
         mecanumAutoDrive = new MecanumAutoDrive(robot, telemetry);
 
 
-        skystoneNavigaitonThread.start();
+        //skystoneNavigaitonThread.start();
         // Wait for the game to start (driver presses PLAY)
 
         waitForStart();
@@ -192,61 +192,54 @@ public class MecanumAutoRedV2 extends LinearOpMode {
 
 
 
-        mecanumAutoDrive.straferTask(0.23,0,0.2,0.05,5);
-
-
-
-
-        //if(stoneCheck == 0){
-        //  mecanumAutoDrive.goStraightTask(STONE_WIDTH, 0, 0.1, 0.02, 5);
-        //}
-        //if(stoneCheck == 1){
-        //  mecanumAutoDrive.goStraightTask(STONE_WIDTH*2, 0, 0.1, 0.02, 5);
-        //}
+        mecanumAutoDrive.straferTask(0.21 ,0,0.2,0.05,5);
 
 
 
 
 
-
-
-        mecanumAutoDrive.goStraightTask(1.8 + (stoneCheck+1) * STONE_WIDTH, 0, 0.35, 0.02, 5);
+        mecanumAutoDrive.goStraightTask(1.69 + (stoneCheck+1) * STONE_WIDTH, 0, 0.35, 0.02, 5);
         //   robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI - 0.2);
-        mecanumAutoDrive.straferTask(0.48,0,-0.2,0.05,5);
+
+
+
+        mecanumAutoDrive.straferTask(0.37,0,-0.2,0.05,5);
         //dropOffStone
 
         robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
         ftcWait(100);
         robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD - 0.02);
         ftcWait(300);
-        mecanumAutoDrive.straferTask(0.35,0,0.2,0.05,5);
+
+        mecanumAutoDrive.straferTask(0.26,0,0.2,0.05,5);
         //reset pick up arm
+
         robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
         robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
         //mecanumAutoDrive.goStraightTask(2.2 - 0.07 + 5 * STONE_WIDTH + stoneCheck * STONE_WIDTH, 0, -0.35, 0.02, 5);
 
-        mecanumAutoDrive.goStraightTask(2.24 + (stoneCheck+1) * STONE_WIDTH + 2*STONE_WIDTH, 0, -0.35, 0.02, 5);
+        mecanumAutoDrive.goStraightTask(2.1 + (stoneCheck+1) * STONE_WIDTH + 2*STONE_WIDTH, 0, -0.35, 0.02, 5);
 
 
 
 
 
-        mecanumAutoDrive.straferTask(0.28,0,-0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.30,0,-0.2,0.05,5);
         pickUpStone();
 
-        mecanumAutoDrive.straferTask(0.22,1,0.2,0.05,5);
+        mecanumAutoDrive.straferTask(0.24,1,0.2,0.05,5);
 
 
-        mecanumAutoDrive.goStraightTask(2.24 + ((1 + stoneCheck) * STONE_WIDTH), 0, 0.35, 0.02, 5);
+        mecanumAutoDrive.goStraightTask(2.1 + ((1 + stoneCheck) * STONE_WIDTH), 0, 0.35, 0.02, 5);
         mecanumAutoDrive.straferTask(0.45,0,-0.2,0.05,5);
+
         //drop off stone
         robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
         ftcWait(100);
         robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD + 0.02);
         ftcWait(300);
-        mecanumAutoDrive.driveRobot(-0.15,0.15,0.15,-0.15);
+        mecanumAutoDrive.driveRobot(-0.1,0.1,0.1,-0.1);
         leftHookDown();
-        ftcWait(200);
 
 
         //reset pick up arm
@@ -254,28 +247,24 @@ public class MecanumAutoRedV2 extends LinearOpMode {
         robot.autoLeftClawL.setPosition(RIGHT_CLAWL_INI);
 
         mecanumAutoDrive.driveRobot(0.15,-0.1,-0.15,0.1);
-        ftcWait(200);
-        mecanumAutoDrive.driveRobot(0.5,-0.1,-0.5,0.1);
-        ftcWait(2000);
-        mecanumAutoDrive.turnRobotTask(-80,0.5,10.0, MecanumAutoDrive.TURN_METHOD.TWO_WHEEL, 5);
+        ftcWait(800);
 
-        mecanumAutoDrive.goStraightTask(0.82, -85, 0.25, 0.02, 5);
+        mecanumAutoDrive.driveRobot(0.75,-0.15,-0.75,0.15);
+        ftcWait(1000);
+        mecanumAutoDrive.turnRobotTask(-80,0.5,6.0, MecanumAutoDrive.TURN_METHOD.TWO_WHEEL, 5);
+
+        mecanumAutoDrive.goStraightTask(0.37, -95, 0.25, 0.02, 5);
         leftHookUp();
-        mecanumAutoDrive.straferTask(0.07,-85,0.2,0.05,5);
-        mecanumAutoDrive.driveRobot(0,-0.7,-1,0);
-        ftcWait(2200);
 
 
-/*
-        //park under the bridge
-        robot.intake_left.setPower(-0.7);
-        robot.intake_right.setPower(-0.7);
-        mecanumAutoDrive.straferTask(0.26,0,-0.2,0.05,5); hiaiden
-        mecanumAutoDrive.goStraightTask(0.92, 0, -0.35, 0.02, 5);
-        robot.intake_left.setPower(0);
-        robot.intake_right.setPower(0);
+        mecanumAutoDrive.goStraightTask(0.25, -90, -1, 0.04, 5);
+        mecanumAutoDrive.stopRobot();
+
+        mecanumAutoDrive.straferTask(1.3, -110, 1, 0.04, 5);
+
         /*
-         */
+
+        */
     }
 
 

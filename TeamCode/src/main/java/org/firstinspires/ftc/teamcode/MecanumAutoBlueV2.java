@@ -113,9 +113,9 @@ public class MecanumAutoBlueV2 extends LinearOpMode {
 
         //make sure the IMU gyro is calibrated before continue
         while(!isStopRequested() && ! robot.imu.isGyroCalibrated() &&
-                ! robot.imu.isAccelerometerCalibrated() &&
-                ! robot.imu.isMagnetometerCalibrated() &&
-                ! robot.imu.isSystemCalibrated())
+                                    ! robot.imu.isAccelerometerCalibrated() &&
+                                    ! robot.imu.isMagnetometerCalibrated() &&
+                                    ! robot.imu.isSystemCalibrated())
         {
             idle();
         }
@@ -135,7 +135,7 @@ public class MecanumAutoBlueV2 extends LinearOpMode {
         composeTelemetry();
         telemetry.update();
 
-        //      skystoneNavigaitonThread = new SkystoneNavigation(robot, telemetry);
+  //      skystoneNavigaitonThread = new SkystoneNavigation(robot, telemetry);
 
 
         telemetry.addData("Working Mode", "waiting for start");
@@ -155,90 +155,71 @@ public class MecanumAutoBlueV2 extends LinearOpMode {
 
 
 
-        mecanumAutoDrive.straferTask(0.79,0,-0.2,0.05,5);
-
-
         //check position by back camera for front perimeter 1
+        mecanumAutoDrive.straferTask(0.77,0,0.2,0.05,5);//0.78 -- 0.75
         sleep(300);
         offsetY = 0.03;
-        //  checkPosition1();
-
-
         stoneCheck = checkColor();
 
-        if (stoneCheck == 0) {
+        if(stoneCheck == 0){
             //middle stone is sky stone
-
-
-        }
-        else if(stoneCheck == -1) {
+        }else if(stoneCheck == -1){
             //front one
-            mecanumAutoDrive.goStraightTask(STONE_WIDTH-0.02, 0, 0.1, 0.02, 5);
-
-
-        }
-        else {
+            mecanumAutoDrive.goStraightTask(STONE_WIDTH - 0.03, 0, 0.1, 0.02, 5);//0.03 -- 0.05
+        }else{
             //back one
-            mecanumAutoDrive.goStraightTask(STONE_WIDTH-0.02, 0, -0.1, 0.02, 5);
-
-
+            mecanumAutoDrive.goStraightTask(STONE_WIDTH+0.05, 0, -0.1, 0.02, 5);
         }
-        mecanumAutoDrive.straferTask(0.03,0,-0.2,0,5);
+        mecanumAutoDrive.straferTask(0.05,0,0.2,0.05,5);// 0.03 -- 0
+
+
         pickUpStone();
+        //go for dropping
+        mecanumAutoDrive.straferTask(0.22,-1,-0.2,0.05,5);
+        mecanumAutoDrive.goStraightTask(2.2 + stoneCheck * STONE_WIDTH, 0, 0.35, 0.03, 5);
+        mecanumAutoDrive.straferTask(0.27,-1,0.2,0.05,5);
 
-
-
-        mecanumAutoDrive.straferTask(0.23,0,0.2,0.05,5);
-
-
-
-
-        //if(stoneCheck == 0){
-        //  mecanumAutoDrive.goStraightTask(STONE_WIDTH, 0, 0.1, 0.02, 5);
-        //}
-        //if(stoneCheck == 1){
-        //  mecanumAutoDrive.goStraightTask(STONE_WIDTH*2, 0, 0.1, 0.02, 5);
-        //}
-
-
-
-
-
-
-
-        mecanumAutoDrive.goStraightTask(1.85 + (stoneCheck+1) * STONE_WIDTH, 0, 0.35, 0.02, 5);
-        //   robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI - 0.2);
-        mecanumAutoDrive.straferTask(0.48,0,-0.2,0.05,5);
         //dropOffStone
+        robot.autoRightClawU.setPosition(RIGHT_CLAWU_RELEASE);
+        ftcWait(50);
+        robot.autoRightClawL.setPosition(RIGHT_CLAWL_HOLD + 0.15);
+        ftcWait(350);
+        mecanumAutoDrive.straferTask(0.18,0,-0.15,0.05,5);
 
-        robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
-        ftcWait(100);
-        robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD - 0.02);
-        ftcWait(300);
-        mecanumAutoDrive.straferTask(0.35,0,0.2,0.05,5);
         //reset pick up arm
-        robot.autoLeftClawU.setPosition(LEFT_CLAWU_INI);
-        robot.autoLeftClawL.setPosition(LEFT_CLAWL_INI);
-        //mecanumAutoDrive.goStraightTask(2.2 - 0.07 + 5 * STONE_WIDTH + stoneCheck * STONE_WIDTH, 0, -0.35, 0.02, 5);
+        robot.autoRightClawU.setPosition(RIGHT_CLAWU_INI);
+        robot.autoRightClawL.setPosition(RIGHT_CLAWL_INI);
+        mecanumAutoDrive.goStraightTask(2.65, 0, -0.35, 0.02, 5);
 
-        mecanumAutoDrive.goStraightTask(2.3 + (stoneCheck+1) * STONE_WIDTH + 2*STONE_WIDTH, 0, -0.35, 0.02, 5);
+        if(stoneCheck == -1) {
+            mecanumAutoDrive.straferTask(0.20,0,0.2,0.05,5);
+        }else if(stoneCheck == 0){
+            mecanumAutoDrive.goStraightTask(STONE_WIDTH, 0, -0.1, 0.02, 5);
+            mecanumAutoDrive.straferTask(0.20,0,0.2,0.05,5);
+        }else{
+            mecanumAutoDrive.goStraightTask(2 * STONE_WIDTH + 0.1, 0, -0.1, 0.02, 5);
+            mecanumAutoDrive.straferTask(0.20,0,0.2,0.05,5);
+        }
 
 
-
-
-        mecanumAutoDrive.straferTask(0.33,0,-0.2,0.05,5);
         pickUpStone();
+        mecanumAutoDrive.straferTask(0.22,0,-0.2,0.05,5);
 
-        mecanumAutoDrive.straferTask(0.26,1,0.2,0.05,5);
+        mecanumAutoDrive.goStraightTask(2.26 + (1 + stoneCheck) * STONE_WIDTH, -1, 0.35, 0.02, 5);
+        mecanumAutoDrive.straferTask(0.3,-1,0.2,0.05,5);
 
-
-        mecanumAutoDrive.goStraightTask(2.2 + ((1 + stoneCheck) * STONE_WIDTH), 0, 0.35, 0.02, 5);
-        mecanumAutoDrive.straferTask(0.5,0,-0.2,0.05,5);
         //drop off stone
-        robot.autoLeftClawU.setPosition(LEFT_CLAWU_RELEASE);
-        ftcWait(100);
-        robot.autoLeftClawL.setPosition(LEFT_CLAWL_HOLD + 0.02);
+        robot.autoRightClawU.setPosition(RIGHT_CLAWU_RELEASE);
+        ftcWait(70);
+        robot.autoRightClawL.setPosition(RIGHT_CLAWL_HOLD + 0.12);
         ftcWait(300);
+
+        //hookdown first
+
+
+        mecanumAutoDrive.driveRobot(0.15,-0.15,-0.15,0.15);
+        rightHookDown();
+        ftcWait(400);
 
 
         //reset pick up arm
@@ -264,11 +245,12 @@ public class MecanumAutoBlueV2 extends LinearOpMode {
         robot.intake_left.setPower(0);
         robot.intake_right.setPower(0);
         /*
+
          */
     }
 
 
-    //----------------------------------------------------------------------------------------------
+        //----------------------------------------------------------------------------------------------
     // Telemetry Configuration
     //----------------------------------------------------------------------------------------------
 
@@ -363,16 +345,16 @@ public class MecanumAutoBlueV2 extends LinearOpMode {
     private void pickUpStone(){
         try
         {
-            robot.autoRightClawU.setPosition(RIGHT_CLAWU_PICK);
-            sleep(250);
-            robot.autoRightClawL.setPosition(RIGHT_CLAWL_PICK);
+                robot.autoRightClawU.setPosition(RIGHT_CLAWU_PICK);
+                sleep(250);
+                robot.autoRightClawL.setPosition(RIGHT_CLAWL_PICK);
 
-            Thread.sleep(500);
-            robot.autoRightClawU.setPosition(RIGHT_CLAWU_HOLD);
-            Thread.sleep(700);
-            robot.autoRightClawL.setPosition(RIGHT_CLAWL_HOLD);
-            Thread.sleep(400);
-            //Thread.yield();
+                Thread.sleep(500);
+                robot.autoRightClawU.setPosition(RIGHT_CLAWU_HOLD);
+                Thread.sleep(700);
+                robot.autoRightClawL.setPosition(RIGHT_CLAWL_HOLD);
+                Thread.sleep(400);
+                //Thread.yield();
 
         }
         // interrupted means time to shutdown. note we can stop by detecting isInterrupted = true
@@ -547,6 +529,7 @@ public class MecanumAutoBlueV2 extends LinearOpMode {
             if (offsetY > 0){
                 mecanumAutoDrive.straferTask(Math.abs(offsetY), 0,-0.2,0,5);
             }
+
         }*/
     }
 
