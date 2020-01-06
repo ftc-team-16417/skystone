@@ -66,7 +66,7 @@ public class MecanumAutoBlueV2 extends LinearOpMode {
     final double RIGHT_CLAWU_INI = 0.44;
     final double RIGHT_CLAWL_INI = 0.47;
     final double RIGHT_CLAWU_PICK = RIGHT_CLAWU_INI + 0.2 ;
-    final double RIGHT_CLAWL_PICK = RIGHT_CLAWL_INI + 0.34;
+    final double RIGHT_CLAWL_PICK = RIGHT_CLAWL_INI + 0.38;
     final double RIGHT_CLAWU_HOLD = RIGHT_CLAWU_INI - 0.05;
     final double RIGHT_CLAWL_HOLD = RIGHT_CLAWL_INI +  0.05;
     final double RIGHT_CLAWU_RELEASE = RIGHT_CLAWU_INI + 0.13;
@@ -194,7 +194,7 @@ public class MecanumAutoBlueV2 extends LinearOpMode {
         if(stoneCheck == -1) {
             mecanumAutoDrive.straferTask(0.20,0,0.2,0.05,5);
         }else if(stoneCheck == 0){
-            mecanumAutoDrive.goStraightTask(STONE_WIDTH, 0, -0.1, 0.02, 5);
+            mecanumAutoDrive.goStraightTask(STONE_WIDTH+0.05, 0, -0.1, 0.02, 5);
             mecanumAutoDrive.straferTask(0.20,0,0.2,0.05,5);
         }else{
             mecanumAutoDrive.goStraightTask(2 * STONE_WIDTH + 0.1, 0, -0.1, 0.02, 5);
@@ -234,6 +234,9 @@ public class MecanumAutoBlueV2 extends LinearOpMode {
 
         mecanumAutoDrive.goStraightTask(0.82, 85, 0.25, 0.02, 5);
         rightHookUp();
+
+        mecanumAutoDrive.straferTask(1.1, 115, -0.25, 0.02, 5);
+
         mecanumAutoDrive.stopRobot();
 
 /*

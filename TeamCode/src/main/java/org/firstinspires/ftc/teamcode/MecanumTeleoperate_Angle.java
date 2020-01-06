@@ -60,7 +60,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
     final int ARM_DROP_LEVEL4 = 2400;
     final int ARM_DROP_LEVEL5 = 2200;
     final int ARM_DROP_LEVEL6 = 2000;
-    final int ARM_DROP_LEVEL7 = 1850;
+    final int ARM_DROP_LEVEL7 = 1850;//position for arm to reach back 
     int arm_tilt_Pos_index = 0;
     int[] arm_tilt_Pos_Array = new int[]{ARM_PICKUP_POS,ARM_PICK_READY_POS,ARM_PICKUP_MIDDLE_POS1,ARM_PICKUP_MIDDLE_POS2,
                                         ARM_PICKUP_MIDDLE_POS3,ARM_DROP_LEVEL7,ARM_DROP_LEVEL6,ARM_DROP_LEVEL5,ARM_DROP_LEVEL4,
@@ -144,7 +144,7 @@ public class MecanumTeleoperate_Angle extends OpMode {
     final double LEFT_CLAWU_RELEASE = LEFT_CLAWU_INI - 0.3;
 
     final double RIGHT_CLAWU_INI = 0.44;
-    final double RIGHT_CLAWL_INI = 0.47;
+    final double RIGHT_CLAWL_INI = 0.5;
     final double RIGHT_CLAWU_PICK = RIGHT_CLAWU_INI + 0.2 ;
     final double RIGHT_CLAWL_PICK = RIGHT_CLAWL_INI + 0.34;
     final double RIGHT_CLAWU_HOLD = RIGHT_CLAWU_INI - 0.05;
